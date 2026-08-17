@@ -1,0 +1,46 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/level_manager.gd" id="1_level_mgr"]
+[ext_resource type="Script" path="res://scripts/world/parallax_background.gd" id="2_parallax"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player_scene"]
+[ext_resource type="Script" path="res://scripts/camera/camera_controller.gd" id="4_camera"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="5_hud_scene"]
+[ext_resource type="PackedScene" path="res://scenes/PauseMenu.tscn" id="6_pause_scene"]
+[ext_resource type="PackedScene" path="res://scenes/GameOver.tscn" id="7_gameover_scene"]
+[ext_resource type="PackedScene" path="res://scenes/CalibrationScreen.tscn" id="8_calib_scene"]
+[ext_resource type="PackedScene" path="res://scenes/LevelIntro.tscn" id="9_intro_scene"]
+[ext_resource type="PackedScene" path="res://scenes/LevelComplete.tscn" id="10_comp_scene"]
+
+[node name="Main" type="Node2D"]
+
+[node name="StarfieldParallax" type="ParallaxBackground" parent="."]
+script = ExtResource("2_parallax")
+
+[node name="LayerStars1" type="ParallaxLayer" parent="StarfieldParallax"]
+
+[node name="LayerStars2" type="ParallaxLayer" parent="StarfieldParallax"]
+
+[node name="LayerNebula" type="ParallaxLayer" parent="StarfieldParallax"]
+
+[node name="LevelManager" type="Node2D" parent="."]
+script = ExtResource("1_level_mgr")
+
+[node name="Player" parent="." instance=ExtResource("3_player_scene")]
+position = Vector2(180, 360)
+
+[node name="CameraController" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+current = true
+script = ExtResource("4_camera")
+
+[node name="HUD" parent="." instance=ExtResource("5_hud_scene")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("6_pause_scene")]
+
+[node name="GameOver" parent="." instance=ExtResource("7_gameover_scene")]
+
+[node name="CalibrationScreen" parent="." instance=ExtResource("8_calib_scene")]
+
+[node name="LevelIntro" parent="." instance=ExtResource("9_intro_scene")]
+
+[node name="LevelComplete" parent="." instance=ExtResource("10_comp_scene")]

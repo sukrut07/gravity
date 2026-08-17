@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DifficultyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/difficulty_config.gd" id="1_diff_config"]
+
+[resource]
+script = ExtResource("1_diff_config")
+base_speed = 300.0
+speed_increase_per_100m = 8.0
+max_world_speed = 800.0
+initial_spawn_interval = 2.5
+min_spawn_interval = 0.8
+powerup_interval_meters = 500.0
+boss_distance_meters = 3000.0

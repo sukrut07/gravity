@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_basic.gd" id="1_enemy_basic"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ebasic"]
+size = Vector2(40, 28)
+
+[node name="EnemyBasic" type="Area2D"]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_enemy_basic")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_ebasic")

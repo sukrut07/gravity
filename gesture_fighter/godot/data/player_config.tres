@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="PlayerConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/player_config.gd" id="1_player_config"]
+
+[resource]
+script = ExtResource("1_player_config")
+acceleration = 1200.0
+deceleration = 1600.0
+turn_speed = 8.0
+instant_move = false
+max_speed = 900.0
+jump_duration = 0.35
+jump_height = 180.0
+down_gravity = 850.0
+air_acceleration = 900.0
+air_control = 1.0
+air_brake = 700.0
+jump_cutoff_level = 0.25
+double_jump = true
+coyote_time = 0.12
+jump_buffer_time = 0.12
+terminal_velocity = 1000.0
+max_health = 1
+shield_duration = 6.0
+fire_rate = 0.15
