@@ -24,8 +24,15 @@ eggs/
 .godot/
 *.translation
 
-# Godot export presets (uncomment if you have credentials/keys in them)
+# Godot export presets
 # export_presets.cfg
+
+# Licensed asset packs (do not commit raw SpaceRage assets)
+assets/SpaceRage/
+SpaceRage/
+SpaceRage.zip
+*.psd
+*.pdf
 
 # IDE / Editor files
 .idea/
