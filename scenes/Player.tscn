@@ -1,61 +1,18 @@
-[gd_scene load_steps=20 format=3 uid="uid://player01scene"]
+[gd_scene format=3 uid="uid://ks8qf8uhnhh4"]
 
-[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="Script" path="res://scripts/input/input_manager.gd" id="2_input_mgr"]
-[ext_resource type="Texture2D" path="res://SpaceRage/Shadows/player_shadow_m.png" id="3_shadow"]
-[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_m.png" id="4_p_m"]
-[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_l1.png" id="5_p_l1"]
-[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_l2.png" id="6_p_l2"]
-[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_r1.png" id="7_p_r1"]
-[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_r2.png" id="8_p_r2"]
-[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_01.png" id="9_ex_01"]
-[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_02.png" id="10_ex_02"]
-[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_03.png" id="11_ex_03"]
-[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_04.png" id="12_ex_04"]
-[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_05.png" id="13_ex_05"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("8_p_r2")
-}],
-"loop": true,
-"name": &"down_2",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("7_p_r1")
-}],
-"loop": true,
-"name": &"down_1",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("4_p_m")
-}],
-"loop": true,
-"name": &"straight",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("5_p_l1")
-}],
-"loop": true,
-"name": &"up_1",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("6_p_l2")
-}],
-"loop": true,
-"name": &"up_2",
-"speed": 5.0
-}]
+[ext_resource type="Script" uid="uid://d3oeo6uq56wdf" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://ccxwl1py4dfy8" path="res://scripts/input/input_manager.gd" id="2_input_mgr"]
+[ext_resource type="Texture2D" uid="uid://4khqcckbp1gu" path="res://SpaceRage/Shadows/player_shadow_m.png" id="3_shadow"]
+[ext_resource type="Texture2D" uid="uid://d217ycaelkjop" path="res://SpaceRage/Player/player_b_m.png" id="4_p_m"]
+[ext_resource type="Texture2D" uid="uid://dwv5od08ihkav" path="res://SpaceRage/Player/player_b_l1.png" id="5_p_l1"]
+[ext_resource type="Texture2D" uid="uid://cvs42c7n3nmka" path="res://SpaceRage/Player/player_b_l2.png" id="6_p_l2"]
+[ext_resource type="Texture2D" uid="uid://dshcmv8f6c20s" path="res://SpaceRage/Player/player_b_r1.png" id="7_p_r1"]
+[ext_resource type="Texture2D" uid="uid://yuh1f8vd58yk" path="res://SpaceRage/Player/player_b_r2.png" id="8_p_r2"]
+[ext_resource type="Texture2D" uid="uid://dhhc8nao7pq1j" path="res://SpaceRage/FX/exhaust_01.png" id="9_ex_01"]
+[ext_resource type="Texture2D" uid="uid://cp7hoypgbbhef" path="res://SpaceRage/FX/exhaust_02.png" id="10_ex_02"]
+[ext_resource type="Texture2D" uid="uid://5etxebnmqxll" path="res://SpaceRage/FX/exhaust_03.png" id="11_ex_03"]
+[ext_resource type="Texture2D" uid="uid://2r037xuky50u" path="res://SpaceRage/FX/exhaust_04.png" id="12_ex_04"]
+[ext_resource type="Texture2D" uid="uid://d20ddq16y3xah" path="res://SpaceRage/FX/exhaust_05.png" id="13_ex_05"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_exhaust"]
 animations = [{
@@ -75,57 +32,99 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("13_ex_05")
 }],
-"loop": true,
+"loop": 1,
 "name": &"default",
 "speed": 18.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_p_r1")
+}],
+"loop": 1,
+"name": &"down_1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8_p_r2")
+}],
+"loop": 1,
+"name": &"down_2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_p_m")
+}],
+"loop": 1,
+"name": &"straight",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_p_l1")
+}],
+"loop": 1,
+"name": &"up_1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_p_l2")
+}],
+"loop": 1,
+"name": &"up_2",
+"speed": 5.0
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(48, 28)
 
-[node name="Player" type="CharacterBody2D"]
-collision_layer = 1
+[node name="Player" type="CharacterBody2D" unique_id=122225589]
 collision_mask = 118
 script = ExtResource("1_player")
 
-[node name="Shadow" type="Sprite2D" parent="."]
+[node name="Shadow" type="Sprite2D" parent="." unique_id=771349021]
 modulate = Color(1, 1, 1, 0.3)
 position = Vector2(8, 10)
-rotation = 1.57079632679
+rotation = 1.5707964
 texture = ExtResource("3_shadow")
 
-[node name="EngineExhaust" type="AnimatedSprite2D" parent="."]
+[node name="EngineExhaust" type="AnimatedSprite2D" parent="." unique_id=1376850969]
 position = Vector2(-28, 0)
-rotation = 1.57079632679
+rotation = 1.5707964
 sprite_frames = SubResource("SpriteFrames_exhaust")
 autoplay = "default"
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-rotation = 1.57079632679
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=493634065]
+rotation = 1.5707964
 sprite_frames = SubResource("SpriteFrames_player")
-animation = &"straight"
+animation = &"down_1"
 autoplay = "straight"
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=489914316]
 visible = false
 
-[node name="EngineSprite" type="Sprite2D" parent="."]
+[node name="EngineSprite" type="Sprite2D" parent="." unique_id=2130769095]
 visible = false
 position = Vector2(-36, 0)
 
-[node name="ShieldSprite" type="Sprite2D" parent="."]
+[node name="ShieldSprite" type="Sprite2D" parent="." unique_id=1944280148]
 scale = Vector2(2.2, 2.2)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=43674823]
 shape = SubResource("RectangleShape2D_player")
 
-[node name="Muzzle" type="Node2D" parent="."]
+[node name="Muzzle" type="Node2D" parent="." unique_id=1998545066]
 position = Vector2(28, 0)
 
-[node name="EnginePoint" type="Node2D" parent="."]
+[node name="EnginePoint" type="Node2D" parent="." unique_id=396799346]
 position = Vector2(-28, 0)
 
-[node name="EngineParticles" type="CPUParticles2D" parent="."]
+[node name="EngineParticles" type="CPUParticles2D" parent="." unique_id=315336391]
 position = Vector2(-28, 0)
 amount = 16
 lifetime = 0.3
@@ -139,10 +138,12 @@ initial_velocity_min = 80.0
 initial_velocity_max = 140.0
 scale_amount_min = 2.0
 scale_amount_max = 4.0
-color = Color(0.2, 0.8, 1.0, 0.6)
+color = Color(0.2, 0.8, 1, 0.6)
 
-[node name="InputManager" type="Node" parent="."]
+[node name="InputManager" type="Node" parent="." unique_id=1935319605]
 script = ExtResource("2_input_mgr")
 
-[node name="CameraTarget" type="Node2D" parent="."]
+[node name="CameraTarget" type="Node2D" parent="." unique_id=675967425]
 position = Vector2(100, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=265577352]

@@ -13,16 +13,29 @@ def main():
     print(" Press 'q' or 'ESC' in the camera preview window to quit.")
     print("=" * 65)
 
-    cap = cv2.VideoCapture(0)
+    # Attempt opening camera 0 with AVFoundation backend for macOS
+    cap = cv2.VideoCapture(0, cv2.CAP_AVFOUNDATION)
+    if not cap.isOpened():
+        cap = cv2.VideoCapture(0)
+
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-    if not cap.isOpened():
-        print("\n[CAMERA ERROR] Could not open webcam device (index 0).")
-        print("CAMERA ACCESS DENIED: If you are running on macOS, please grant")
-        print("camera permissions to Terminal / IDE in:")
-        print("System Settings -> Privacy & Security -> Camera -> (Enable Access)")
-        print("\nFalling back: Godot game will run seamlessly in KEYBOARD MODE.\n")
+    ret, test_frame = cap.read()
+    if not ret or test_frame is None:
+        print("\n" + "!" * 65)
+        print(" CAMERA ACCESS REQUIRED")
+        print("!" * 65)
+        print("Could not access the Mac camera stream.")
+        print("\nPlease allow camera access for the application running this")
+        print("Python process (Terminal / iTerm / VSCode / Cursor / IDE) in:\n")
+        print("  System Settings")
+        print("  -> Privacy & Security")
+        print("  -> Camera")
+        print("  -> (Toggle ON for your terminal / app)\n")
+        print("Falling back: Godot game will run seamlessly in KEYBOARD MODE.")
+        print("!" * 65 + "\n")
+        cap.release()
         return
 
     tracker = HandTracker(max_num_hands=1, min_detection_confidence=0.7, min_tracking_confidence=0.6)
