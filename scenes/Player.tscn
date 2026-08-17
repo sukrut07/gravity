@@ -1,19 +1,116 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=20 format=3 uid="uid://player01scene"]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/input/input_manager.gd" id="2_input_mgr"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Shadows/player_shadow_m.png" id="3_shadow"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_m.png" id="4_p_m"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_l1.png" id="5_p_l1"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_l2.png" id="6_p_l2"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_r1.png" id="7_p_r1"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_r2.png" id="8_p_r2"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_01.png" id="9_ex_01"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_02.png" id="10_ex_02"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_03.png" id="11_ex_03"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_04.png" id="12_ex_04"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_05.png" id="13_ex_05"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8_p_r2")
+}],
+"loop": true,
+"name": &"down_2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_p_r1")
+}],
+"loop": true,
+"name": &"down_1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_p_m")
+}],
+"loop": true,
+"name": &"straight",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_p_l1")
+}],
+"loop": true,
+"name": &"up_1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_p_l2")
+}],
+"loop": true,
+"name": &"up_2",
+"speed": 5.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_exhaust"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_ex_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_ex_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_ex_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_ex_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_ex_05")
+}],
+"loop": true,
+"name": &"default",
+"speed": 18.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(56, 28)
+size = Vector2(48, 28)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 1
 collision_mask = 118
 script = ExtResource("1_player")
 
+[node name="Shadow" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.3)
+position = Vector2(8, 10)
+rotation = 1.57079632679
+texture = ExtResource("3_shadow")
+
+[node name="EngineExhaust" type="AnimatedSprite2D" parent="."]
+position = Vector2(-28, 0)
+rotation = 1.57079632679
+sprite_frames = SubResource("SpriteFrames_exhaust")
+autoplay = "default"
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+rotation = 1.57079632679
+sprite_frames = SubResource("SpriteFrames_player")
+animation = &"straight"
+autoplay = "straight"
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
 
 [node name="EngineSprite" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(-36, 0)
 
 [node name="ShieldSprite" type="Sprite2D" parent="."]
@@ -23,26 +120,26 @@ scale = Vector2(2.2, 2.2)
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Muzzle" type="Node2D" parent="."]
-position = Vector2(32, 0)
+position = Vector2(28, 0)
 
 [node name="EnginePoint" type="Node2D" parent="."]
-position = Vector2(-32, 0)
+position = Vector2(-28, 0)
 
 [node name="EngineParticles" type="CPUParticles2D" parent="."]
-position = Vector2(-32, 0)
-amount = 24
-lifetime = 0.4
+position = Vector2(-28, 0)
+amount = 16
+lifetime = 0.3
 speed_scale = 1.2
 explosiveness = 0.1
 randomness = 0.3
 direction = Vector2(-1, 0)
 spread = 15.0
 gravity = Vector2(0, 0)
-initial_velocity_min = 120.0
-initial_velocity_max = 200.0
+initial_velocity_min = 80.0
+initial_velocity_max = 140.0
 scale_amount_min = 2.0
-scale_amount_max = 5.0
-color = Color(0.2, 0.8, 1.0, 0.8)
+scale_amount_max = 4.0
+color = Color(0.2, 0.8, 1.0, 0.6)
 
 [node name="InputManager" type="Node" parent="."]
 script = ExtResource("2_input_mgr")

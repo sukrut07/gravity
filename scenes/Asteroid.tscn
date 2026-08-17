@@ -1,8 +1,53 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=14 format=3 uid="uid://asteroid01scene"]
 
 [ext_resource type="Script" path="res://scripts/enemies/asteroid.gd" id="1_asteroid"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Shadows/mine_1_shadow_01.png" id="2_mine_shadow"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_01.png" id="3_m_01"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_02.png" id="4_m_02"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_03.png" id="5_m_03"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_04.png" id="6_m_04"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_05.png" id="7_m_05"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_06.png" id="8_m_06"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_07.png" id="9_m_07"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_08.png" id="10_m_08"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_09.png" id="11_m_09"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_ast"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_mine"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_m_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_m_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_m_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_m_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_m_05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_m_06")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_m_07")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_m_08")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_m_09")
+}],
+"loop": true,
+"name": &"default",
+"speed": 12.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mine"]
 radius = 20.0
 
 [node name="Asteroid" type="Area2D"]
@@ -10,7 +55,17 @@ collision_layer = 16
 collision_mask = 5
 script = ExtResource("1_asteroid")
 
+[node name="Shadow" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.3)
+position = Vector2(4, 6)
+texture = ExtResource("2_mine_shadow")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_mine")
+autoplay = "default"
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_ast")
+shape = SubResource("CircleShape2D_mine")

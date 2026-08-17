@@ -14,6 +14,7 @@ extends CanvasLayer
 
 var milestone_timer: float = 0.0
 var section_prompt_timer: float = 0.0
+var player_input_mgr: InputManager = null
 
 func _ready() -> void:
 	GameManager.score_updated.connect(_on_score_updated)
@@ -41,16 +42,57 @@ func _process(delta: float) -> void:
 		if section_prompt_timer <= 0.0:
 			section_prompt_label.visible = false
 
+	# Lazy find Player InputManager
+	if player_input_mgr == null:
+		var players = get_tree().get_nodes_in_group("player")
+		if players.size() > 0:
+			player_input_mgr = players[0].get_node_or_null("InputManager")
+
+	# Update bottom-right Gesture Connection Status
+	if player_input_mgr != null and player_input_mgr.is_gesture_active():
+		var g_name = player_input_mgr.get_gesture_name()
+		var conf = int(player_input_mgr.get_confidence() * 100)
+		gesture_label.text = "GESTURE: CONNECTED (%s %d%%)" % [g_name, conf]
+		gesture_label.modulate = Color(0.2, 0.9, 0.4, 1.0)
+	else:
+		gesture_label.text = "GESTURE: DISCONNECTED (KEYBOARD MODE)"
+		gesture_label.modulate = Color(0.7, 0.7, 0.7, 0.8)
+
 	# Handle F3 Debug Overlay Toggle
-	if Input.is_action_just_pressed("ui_focus_next") or Input.is_key_pressed(KEY_F3):
-		debug_overlay.visible = not debug_overlay.visible
+	if Input.is_key_pressed(KEY_F3):
+		if not Input.is_action_just_pressed("ui_focus_next"):
+			# debounced toggle
+			pass
+
+	if Input.is_action_just_pressed("ui_focus_next") or Input.is_physical_key_pressed(KEY_F3):
+		# Toggle on press
+		pass
 
 	if debug_overlay.visible:
 		var fps = Engine.get_frames_per_second()
-		var udp_status = "CONNECTED" if GameManager.gesture_mode_enabled else "OFFLINE"
-		debug_info_label.text = "FPS: %d\nUDP: %s\nGesture Mode: %s\nDistance: %.1fm" % [
-			fps, udp_status, "ACTIVE" if GameManager.gesture_mode_enabled else "OFFLINE", GameManager.distance_meters
+		var is_conn = player_input_mgr != null and player_input_mgr.is_gesture_active()
+		var g_name = player_input_mgr.get_gesture_name() if player_input_mgr else "N/A"
+		var conf = int((player_input_mgr.get_confidence() if player_input_mgr else 0.0) * 100)
+		var move_y = player_input_mgr.get_move_y() if player_input_mgr else 0.0
+		var shooting = player_input_mgr.is_shooting() if player_input_mgr else false
+		var shielding = player_input_mgr.is_shield_active() if player_input_mgr else false
+		var move_str = "UP" if move_y < -0.1 else ("DOWN" if move_y > 0.1 else "NEUTRAL")
+
+		debug_info_label.text = "FPS: %d\nHAND: %s\nGESTURE: %s\nCONFIDENCE: %d%%\nMOVE: %s (%.2f)\nSHOOT: %s\nSHIELD: %s" % [
+			fps,
+			"CONNECTED" if is_conn else "DISCONNECTED",
+			g_name,
+			conf,
+			move_str,
+			move_y,
+			"YES" if shooting else "NO",
+			"YES" if shielding else "NO"
 		]
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_F3:
+			debug_overlay.visible = not debug_overlay.visible
 
 func _on_score_updated(score: int, multiplier: int) -> void:
 	score_label.text = "SCORE: %06d" % score

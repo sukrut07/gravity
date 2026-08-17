@@ -13,22 +13,27 @@ class UDPSender:
             return
         
         packet = {
-            "x": gesture_data.get("x", 0.5),
-            "y": gesture_data.get("y", 0.5),
-            "shoot": gesture_data.get("shoot", False),
-            "shield": gesture_data.get("shield", False),
-            "special": gesture_data.get("special", False),
-            "pause": gesture_data.get("pause", False),
-            "dash": gesture_data.get("dash", False),
-            "confidence": gesture_data.get("confidence", 0.0),
-            "timestamp": int(time.time() * 1000)
+            "timestamp": int(time.time() * 1000),
+            "hand_detected": bool(gesture_data.get("hand_detected", False)),
+            "x": float(gesture_data.get("x", 0.5)),
+            "y": float(gesture_data.get("y", 0.5)),
+            "move_y": float(gesture_data.get("move_y", 0.0)),
+            "gesture": str(gesture_data.get("gesture", "NONE")),
+            "shoot": bool(gesture_data.get("shoot", False)),
+            "shield": bool(gesture_data.get("shield", False)),
+            "special": bool(gesture_data.get("special", False)),
+            "pause_pressed": bool(gesture_data.get("pause_pressed", False)),
+            "confidence": float(gesture_data.get("confidence", 0.0))
         }
         
         payload = json.dumps(packet).encode('utf-8')
         try:
             self.sock.sendto(payload, (self.host, self.port))
         except Exception as e:
-            print(f"[UDPSender] Error sending packet: {e}")
+            print(f"[UDPSender] Error sending UDP packet: {e}")
 
     def close(self):
-        self.sock.close()
+        try:
+            self.sock.close()
+        except Exception:
+            pass

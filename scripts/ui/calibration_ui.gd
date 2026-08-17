@@ -8,18 +8,20 @@ extends CanvasLayer
 
 var current_step: int = 0
 var calibration_steps: Array = [
-	"SHOW YOUR HAND TO THE CAMERA",
-	"MOVE HAND TO THE CENTER",
-	"MOVE HAND UP (FLY UP)",
-	"MOVE HAND DOWN (FLY DOWN)",
-	"EXTEND INDEX FINGER (SHOOT)",
-	"MAKE A CLOSED FIST (SHIELD)",
-	"OPEN PALM (PAUSE GAME)",
-	"CALIBRATION COMPLETE - READY!"
+	"GESTURE CONTROL\nSHOW YOUR HAND\nMove your hand to the center",
+	"MOVE UP\nMove hand to top zone to fly up",
+	"MOVE DOWN\nMove hand to bottom zone to fly down",
+	"INDEX FINGER = FIRE\nExtend index finger to shoot cannon",
+	"FIST = SHIELD\nMake a closed fist to activate shield",
+	"TWO FINGERS = SPECIAL\nShow two fingers for special ability",
+	"OPEN PALM = PAUSE\nShow open palm to pause game",
+	"GESTURE CONTROL READY"
 ]
 
 func _ready() -> void:
 	visible = true
+	start_button.text = "START GAME (GESTURE MODE)"
+	keyboard_button.text = "SKIP / KEYBOARD MODE"
 	start_button.pressed.connect(_on_start_pressed)
 	keyboard_button.pressed.connect(_on_keyboard_pressed)
 	update_step_display()
@@ -33,6 +35,7 @@ func update_step_display() -> void:
 		status_label.text = "STEP %d OF %d" % [current_step + 1, calibration_steps.size() - 1]
 
 func _on_start_pressed() -> void:
+	GameManager.gesture_mode_enabled = true
 	visible = false
 	GameManager.start_game()
 

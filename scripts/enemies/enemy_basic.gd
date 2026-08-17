@@ -6,6 +6,8 @@ extends Area2D
 
 @onready var sprite: Sprite2D = $Sprite2D
 
+var explosion_scene: PackedScene = preload("res://scenes/Explosion.tscn")
+
 func _ready() -> void:
 	add_to_group("enemies")
 	if sprite.texture == null:
@@ -28,6 +30,11 @@ func take_damage(amount: int) -> void:
 func destroy() -> void:
 	AudioManager.play_sound("enemy_destroy")
 	GameManager.increment_destroyed()
+	if explosion_scene != null:
+		var expl = explosion_scene.instantiate()
+		if expl != null:
+			get_parent().add_child(expl)
+			expl.global_position = global_position
 	queue_free()
 
 func _on_body_entered(body: Node2D) -> void:

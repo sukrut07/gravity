@@ -1,0 +1,144 @@
+[gd_scene format=3 uid="uid://c6explosion01"]
+
+[ext_resource type="Script" path="res://scripts/effects/explosion.gd" id="1_expl_script"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_01.png" id="2_e1_01"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_02.png" id="3_e1_02"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_03.png" id="4_e1_03"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_04.png" id="5_e1_04"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_05.png" id="6_e1_05"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_06.png" id="7_e1_06"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_07.png" id="8_e1_07"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_08.png" id="9_e1_08"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_09.png" id="10_e1_09"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_10.png" id="11_e1_10"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_1_11.png" id="12_e1_11"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_01.png" id="13_e2_01"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_02.png" id="14_e2_02"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_03.png" id="15_e2_03"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_04.png" id="16_e2_04"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_05.png" id="17_e2_05"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_06.png" id="18_e2_06"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_07.png" id="19_e2_07"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_08.png" id="20_e2_08"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_2_09.png" id="21_e2_09"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_01.png" id="22_e3_01"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_02.png" id="23_e3_02"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_03.png" id="24_e3_03"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_04.png" id="25_e3_04"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_05.png" id="26_e3_05"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_06.png" id="27_e3_06"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_07.png" id="28_e3_07"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_08.png" id="29_e3_08"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Explosions/explosion_3_09.png" id="30_e3_09"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_expl"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_e1_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_e1_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_e1_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_e1_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_e1_05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_e1_06")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_e1_07")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_e1_08")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_e1_09")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_e1_10")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_e1_11")
+}],
+"loop": false,
+"name": &"default",
+"speed": 20.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_e2_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_e2_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_e2_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_e2_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_e2_05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_e2_06")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_e2_07")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_e2_08")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_e2_09")
+}],
+"loop": false,
+"name": &"energy",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("22_e3_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_e3_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_e3_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_e3_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_e3_05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_e3_06")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_e3_07")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_e3_08")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_e3_09")
+}],
+"loop": false,
+"name": &"large",
+"speed": 16.0
+}]
+
+[node name="Explosion" type="Node2D"]
+script = ExtResource("1_expl_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_expl")
+autoplay = "default"

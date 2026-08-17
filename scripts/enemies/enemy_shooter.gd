@@ -9,6 +9,9 @@ extends Area2D
 
 var shoot_timer: float = 0.0
 
+var explosion_scene: PackedScene = preload("res://scenes/Explosion.tscn")
+var plasma_tex: Texture2D = preload("res://SpaceRage/FX/plasma_1.png")
+
 func _ready() -> void:
 	add_to_group("enemies")
 	if sprite.texture == null:
@@ -31,8 +34,12 @@ func fire_enemy_bullet() -> void:
 	bullet.collision_mask = 1 # Player layer
 	
 	var spr = Sprite2D.new()
-	spr.texture = ProceduralAssets.create_powerup_texture(Color(1.0, 0.2, 0.2, 0.9))
-	spr.scale = Vector2(0.5, 0.5)
+	if plasma_tex != null:
+		spr.texture = plasma_tex
+		spr.rotation = -1.57079632679
+	else:
+		spr.texture = ProceduralAssets.create_powerup_texture(Color(1.0, 0.2, 0.2, 0.9))
+		spr.scale = Vector2(0.5, 0.5)
 	bullet.add_child(spr)
 	
 	var shape = CollisionShape2D.new()
@@ -70,6 +77,11 @@ func take_damage(amount: int) -> void:
 func destroy() -> void:
 	AudioManager.play_sound("enemy_destroy")
 	GameManager.increment_destroyed()
+	if explosion_scene != null:
+		var expl = explosion_scene.instantiate()
+		if expl != null:
+			get_parent().add_child(expl)
+			expl.global_position = global_position
 	queue_free()
 
 func _on_body_entered(body: Node2D) -> void:

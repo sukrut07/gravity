@@ -7,6 +7,8 @@ signal shield_changed(is_active: bool)
 @export var config: PlayerConfig
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var anim_sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
+@onready var engine_exhaust: AnimatedSprite2D = get_node_or_null("EngineExhaust")
 @onready var engine_sprite: Sprite2D = $EngineSprite
 @onready var shield_sprite: Sprite2D = $ShieldSprite
 @onready var muzzle: Node2D = $Muzzle
@@ -48,8 +50,9 @@ var laser_active: bool = false
 var magnet_active: bool = false
 var powerup_timer: float = 0.0
 
-# Bullet scene reference
+# Scenes
 var bullet_scene: PackedScene = preload("res://scenes/Bullet.tscn")
+var explosion_scene: PackedScene = preload("res://scenes/Explosion.tscn")
 
 func _ready() -> void:
 	add_to_group("player")
@@ -73,14 +76,15 @@ func _ready() -> void:
 		health = config.max_health
 		max_health = config.max_health
 	
-	if sprite.texture == null:
+	if anim_sprite == null and sprite != null and sprite.texture == null:
 		sprite.texture = ProceduralAssets.create_player_texture()
-	if engine_sprite.texture == null:
+	if engine_sprite != null and engine_sprite.texture == null and engine_exhaust == null:
 		engine_sprite.texture = ProceduralAssets.create_engine_flame_texture()
-	if shield_sprite.texture == null:
+	if shield_sprite != null and shield_sprite.texture == null:
 		shield_sprite.texture = ProceduralAssets.create_powerup_texture(Color(0.2, 0.7, 1.0, 0.4))
 	
-	shield_sprite.visible = false
+	if shield_sprite != null:
+		shield_sprite.visible = false
 
 func _physics_process(delta: float) -> void:
 	if GameManager.current_state != GameManager.GameState.PLAYING:
@@ -105,32 +109,26 @@ func _physics_process(delta: float) -> void:
 
 	# Read Input
 	var move_vec = input_manager.get_move_vector()
-	var target_screen_pos = input_manager.get_target_screen_position(get_viewport_rect().size)
 
-	# Direct tracking mode if gesture active & target valid
-	if input_manager.is_gesture_active() and target_screen_pos != Vector2.ZERO:
-		global_position = global_position.lerp(target_screen_pos, delta * turn_speed * 1.5)
-		velocity = (target_screen_pos - global_position) * turn_speed
+	# Natural Jetpack Flight Physics
+	var target_vel = move_vec * max_speed
+	
+	# Vertical movement from gesture move_y or keyboard
+	if move_vec.y < -0.05: # Upward thrust
+		velocity.y = move_toward(velocity.y, move_vec.y * max_speed, air_acceleration * delta)
+	elif move_vec.y > 0.05: # Downward dive
+		velocity.y = move_toward(velocity.y, move_vec.y * max_speed, down_gravity * delta * 1.5)
+	else: # Neutral flight damping
+		velocity.y = move_toward(velocity.y, 0.0, air_brake * delta)
+	
+	# Horizontal positioning
+	if abs(move_vec.x) > 0.05:
+		velocity.x = move_toward(velocity.x, target_vel.x * 0.5, acceleration * delta)
 	else:
-		# Jetpack Flight Physics
-		var target_vel = move_vec * max_speed
-		
-		# Vertical thrust vs downward gravity
-		if move_vec.y < -0.1: # Upward thrust
-			velocity.y = move_toward(velocity.y, -max_speed, air_acceleration * delta)
-		elif move_vec.y > 0.1: # Downward dive
-			velocity.y = move_toward(velocity.y, max_speed, down_gravity * delta * 1.5)
-		else: # Neutral flight gravity
-			velocity.y = move_toward(velocity.y, down_gravity * 0.3, air_brake * delta)
-		
-		# Horizontal positioning
-		if abs(move_vec.x) > 0.1:
-			velocity.x = move_toward(velocity.x, target_vel.x * 0.5, acceleration * delta)
-		else:
-			velocity.x = move_toward(velocity.x, 0.0, deceleration * delta)
-		
-		velocity.y = clampf(velocity.y, -terminal_velocity, terminal_velocity)
-		move_and_slide()
+		velocity.x = move_toward(velocity.x, 0.0, deceleration * delta)
+	
+	velocity.y = clampf(velocity.y, -terminal_velocity, terminal_velocity)
+	move_and_slide()
 
 	# Enforce Flight Screen Boundaries
 	var vp_size = get_viewport_rect().size
@@ -140,6 +138,23 @@ func _physics_process(delta: float) -> void:
 	# Visual Lean angle (-12 to +12 degrees)
 	var target_rotation = clampf(velocity.y / max_speed, -1.0, 1.0) * deg_to_rad(12.0)
 	rotation = lerpf(rotation, target_rotation, delta * turn_speed)
+
+	# Update SpaceRage banking animations
+	if anim_sprite != null:
+		if velocity.y < -180.0:
+			anim_sprite.animation = "up_2"
+		elif velocity.y < -50.0:
+			anim_sprite.animation = "up_1"
+		elif velocity.y > 180.0:
+			anim_sprite.animation = "down_2"
+		elif velocity.y > 50.0:
+			anim_sprite.animation = "down_1"
+		else:
+			anim_sprite.animation = "straight"
+
+	# Modulate exhaust speed with movement
+	if engine_exhaust != null:
+		engine_exhaust.speed_scale = 1.0 + clampf(abs(velocity.x) / max_speed, 0.0, 1.0) * 0.5
 
 	# Weapon Firing
 	if input_manager.is_shooting():
@@ -173,13 +188,15 @@ func spawn_bullet(angle_offset: float) -> void:
 func activate_shield(duration: float) -> void:
 	is_shield_active = true
 	shield_timer = duration
-	shield_sprite.visible = true
+	if shield_sprite != null:
+		shield_sprite.visible = true
 	AudioManager.play_sound("shield_activate")
 	emit_signal("shield_changed", true)
 
 func deactivate_shield() -> void:
 	is_shield_active = false
-	shield_sprite.visible = false
+	if shield_sprite != null:
+		shield_sprite.visible = false
 	emit_signal("shield_changed", false)
 
 func take_damage() -> void:
@@ -201,6 +218,13 @@ func take_damage() -> void:
 
 func die() -> void:
 	visible = false
+	if explosion_scene != null:
+		var expl = explosion_scene.instantiate()
+		if expl != null:
+			get_parent().add_child(expl)
+			expl.global_position = global_position
+			if expl.has_method("set_explosion_type"):
+				expl.set_explosion_type("large")
 	GameManager.trigger_game_over()
 
 func apply_powerup(type: String, duration: float) -> void:

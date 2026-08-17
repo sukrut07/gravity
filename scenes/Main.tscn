@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=11 format=3 uid="uid://main01scene"]
 
 [ext_resource type="Script" path="res://scripts/world/level_manager.gd" id="1_level_mgr"]
 [ext_resource type="Script" path="res://scripts/world/parallax_background.gd" id="2_parallax"]
@@ -16,11 +16,11 @@
 [node name="StarfieldParallax" type="ParallaxBackground" parent="."]
 script = ExtResource("2_parallax")
 
+[node name="LayerNebula" type="ParallaxLayer" parent="StarfieldParallax"]
+
 [node name="LayerStars1" type="ParallaxLayer" parent="StarfieldParallax"]
 
 [node name="LayerStars2" type="ParallaxLayer" parent="StarfieldParallax"]
-
-[node name="LayerNebula" type="ParallaxLayer" parent="StarfieldParallax"]
 
 [node name="LevelManager" type="Node2D" parent="."]
 script = ExtResource("1_level_mgr")
@@ -30,7 +30,6 @@ position = Vector2(180, 360)
 
 [node name="CameraController" type="Camera2D" parent="."]
 position = Vector2(640, 360)
-current = true
 script = ExtResource("4_camera")
 
 [node name="HUD" parent="." instance=ExtResource("5_hud_scene")]

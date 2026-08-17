@@ -5,12 +5,13 @@ extends Area2D
 @export var damage: int = 10
 @export var lifetime: float = 2.0
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
+@onready var anim_sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 
 var direction: Vector2 = Vector2.RIGHT
 
 func _ready() -> void:
-	if sprite.texture == null:
+	if anim_sprite == null and sprite != null and sprite.texture == null:
 		sprite.texture = ProceduralAssets.create_bullet_texture()
 	
 	area_entered.connect(_on_area_entered)

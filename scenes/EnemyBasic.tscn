@@ -1,16 +1,26 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://enemybasic01"]
 
 [ext_resource type="Script" path="res://scripts/enemies/enemy_basic.gd" id="1_enemy_basic"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Shadows/enemy_1_shadow_m.png" id="2_e1_shadow"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/enemy_1_r_m.png" id="3_e1_sprite"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ebasic"]
-size = Vector2(40, 28)
+size = Vector2(44, 28)
 
 [node name="EnemyBasic" type="Area2D"]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_enemy_basic")
 
+[node name="Shadow" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.3)
+position = Vector2(6, 8)
+rotation = -1.57079632679
+texture = ExtResource("2_e1_shadow")
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
+rotation = -1.57079632679
+texture = ExtResource("3_e1_sprite")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_ebasic")

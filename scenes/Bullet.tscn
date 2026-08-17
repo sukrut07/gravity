@@ -1,6 +1,26 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=8 format=3 uid="uid://bullet01scene"]
 
 [ext_resource type="Script" path="res://scripts/weapons/bullet.gd" id="1_bullet"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/vulcan_1.png" id="2_vulcan_1"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/vulcan_2.png" id="3_vulcan_2"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/vulcan_3.png" id="4_vulcan_3"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bullet"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_vulcan_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_vulcan_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_vulcan_3")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bullet"]
 size = Vector2(24, 8)
@@ -10,7 +30,14 @@ collision_layer = 4
 collision_mask = 18
 script = ExtResource("1_bullet")
 
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+rotation = 1.57079632679
+scale = Vector2(1.2, 1.2)
+sprite_frames = SubResource("SpriteFrames_bullet")
+autoplay = "default"
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_bullet")
