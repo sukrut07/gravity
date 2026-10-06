@@ -1,152 +1,126 @@
-# GESTURE FIGHTER - 2D Endless Gesture-Controlled Fighter Jet Shooter
+# GRAVITY — ENDLESS FLIGHT
 
-**GESTURE FIGHTER** is an arcade-style endless side-scrolling 2D fighter jet runner/shooter built in Godot 4.x (GDScript) with a standalone Python 3 MediaPipe computer-vision application communicating high-frequency control packets over UDP JSON.
-
-The jet is controlled in real time using hand gestures detected via webcam, with a seamless keyboard fallback whenever the webcam or gesture application is offline.
+**GRAVITY: ENDLESS FLIGHT** is a fast-paced, keyboard-controlled 2D endless space runner and shooter built in Godot 4.x (GDScript). Inspired by the fluid momentum of *Jetpack Joyride* fused with classic sci-fi arcade space combat, the game challenges players to navigate hazardous sectors, eliminate hostile interceptors, weave through minefields and asteroid belts, and survive indefinitely.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Core Gameplay Loop
 
-- **Fighter Jet Flight Physics**: Responsive vertical thrust, horizontal positioning, tilt/lean visual feedback, coyote time, and flight boundary clamps.
-- **Dual Input Architecture**: Decoupled input pipeline using `InputManager`. Automatically switches between `GestureInput` (via UDP) and `KeyboardInput` (WASD / Arrows / Space / Shift / Esc).
-- **Procedural Visual System**: Generated sci-fi 2D procedural textures for Player Jet, Enemies, Asteroids, Boss, Powerups, Projectiles, and Starfield Parallax — zero external assets required to run.
-- **Dynamic Difficulty & Endless World**: Procedurally spawned asteroids, basic fighters, shooter drones, kamikaze interceptors, and a 3-phase Boss encounter at 3000m.
-- **Powerups**: Rapid Fire, Shield, Triple Shot, Restore Health, and Score Multiplier.
-- **Python MediaPipe Computer Vision**: Real-time hand landmark tracking, gesture classification (Index Shoot, Fist Shield, Open Palm Pause, Two-Finger Special), EMA smoothing, and deadzone filtering broadcasting at 30–60 Hz over UDP `127.0.0.1:4242`.
+```
+TITLE SCREEN / MAIN MENU
+       ↓
+ START FLIGHT (LAUNCH)
+       ↓
+    ENDLESS RUN
+       ↓
+SURVIVE → DODGE → SHOOT → COLLECT → UPGRADE → SCORE HIGHER
+       ↓
+DYNAMIC SECTORS & MINI-EVENTS (Storms, Swarms, Minefields, Dreadnoughts)
+       ↓
+CONTINUE ENDLESSLY
+       ↓
+HULL DEPLETED → GAME OVER → RUN SUMMARY & HIGH SCORE PERSISTENCE
+```
 
 ---
 
 ## 🎮 Controls
 
-### Keyboard Controls (Always Active Fallback)
+The game is designed from the ground up for responsive, keyboard-first arcade precision:
 
-| Action | Key |
-| :--- | :--- |
-| **Move Up / Down** | `W` / `S` or `Up` / `Down` Arrow |
-| **Move Left / Right** | `A` / `D` or `Left` / `Right` Arrow |
-| **Primary Cannon Fire** | `SPACE` |
-| **Activate Shield** | `SHIFT` |
-| **Special Weapon Hook** | `E` |
-| **Pause Game** | `ESC` |
-| **Gesture Debug Overlay** | `F3` |
+| Action | Primary Key | Secondary Key | Description |
+| :--- | :--- | :--- | :--- |
+| **Climb (Vertical Thrust)** | `W` | `Up Arrow` | Engages vertical engines to rise swiftly |
+| **Dive (Descend)** | `S` | `Down Arrow` | Decelerates / dives toward lower altitudes |
+| **Micro-Adjustment** | `A` / `D` | `Left` / `Right` Arrow | Fine positioning within the flight lane |
+| **Pulse Cannon Fire** | `SPACE` | — | Hold for continuous rapid plasma fire |
+| **Deflector Shield** | `SHIFT` | — | Activates temporary barrier (5.0s, 12s cooldown) |
+| **Screen Burst (Special)** | `E` | — | Consumes 100% Special charge for a smart-bomb wave |
+| **Pause Game** | `ESC` | `P` | Opens pause menu and freezes gameplay |
+| **Quick Restart** | `R` | — | Immediately restarts active run |
 
-### Gesture Controls (Webcam Mode)
+---
 
-| Action | Hand Gesture |
-| :--- | :--- |
-| **Flight Altitude & Position** | Move Hand Up / Down / Left / Right |
-| **Fire Cannons** | Extend **Index Finger** |
-| **Activate Shield** | Make a **Closed Fist** |
-| **Special Ability** | Show **Two Fingers** (Victory sign) |
-| **Pause Game** | Show **Open Palm** |
+## 🌌 Key Systems & Architecture
+
+### 1. Jetpack-Style Flight Mechanics
+- **Physics**: CharacterBody2D with responsive vertical acceleration (`2200 px/s²`) and damping (`2600 px/s²`).
+- **Visuals**: Continuous animated engine exhaust, banking animation frames (`up_1`, `up_2`, `straight`, `down_1`, `down_2`), and velocity-driven ship tilt.
+- **Bounds**: Soft boundary clamps enforcing player flight in the left 20–30% lane of the screen.
+
+### 2. Fair Procedural Endless Spawner
+- **10 Deterministic Spawn Patterns**: From single scouts and enemy pairs to staggered asteroid corridors, mine clusters, and reward arcs.
+- **Fairness Guarantee**: Always leaves generous navigable lanes for the player; never overlaps lethal hazards across the entire screen.
+- **Mini-Events**:
+  - `ASTEROID STORM`: High-density rocky debris with clear flight gates.
+  - `DRONE SWARM`: Coordinated interceptor and shooter formations.
+  - `MINE FIELD`: Proximity mines requiring careful navigation.
+  - `HIGH VALUE ZONE`: Abundant energy pickups and powerup clusters.
+  - `ELITE DREADNOUGHT`: Multi-phase capital ship encounter. Defeating it awards 5,000 pts, drops powerups, and seamlessly resumes the endless flight!
+
+### 3. Combat, Upgrades & Scoring
+- **Pulse Cannon**: High-speed, glowing vulcan projectiles with hit sparks.
+- **Powerups**:
+  - **Rapid Fire**: Cooldown reduced to 0.07s.
+  - **Triple Shot**: 3-way spread pattern.
+  - **Deflector Shield**: Absorbs incoming damage.
+  - **Hull Repair**: Restores 1 HP (up to 5 max).
+  - **Score Multiplier**: Accelerates score accumulation.
+  - **Overdrive**: Boosts speed and cannon velocity simultaneously.
+- **Score Multiplier (Combo System)**:
+  - Multiplier scales from `x1` up to `x5` with quick kills.
+  - Taking hull damage or waiting >3.2 seconds resets the combo counter.
+- **Near-Miss System**: Flying within close proximity of lethal obstacles awards `+25` points with a floating text badge.
+- **Energy Cells**: Floating collectible pickups that award score and charge the Special Ability meter.
+
+### 4. Audio & Presentation
+- **Procedural Arcade SFX**: In-memory synthesized audio streams for laser blasts, hits, explosions, powerup chimes, shield hums, and near-miss whooshes.
+- **Typography & UI**: Styled with Kenney Future and Kenney Future Narrow fonts, glassmorphism panels, and arcade HUD readouts.
+- **Persistence**: High score, best distance, max combo, and audio preferences automatically saved to `user://gravity_save.cfg`.
 
 ---
 
 ## 🛠️ Project Structure
 
 ```
-gesture_fighter/
-├── AGENTS.md                   # Development rules & guidelines
-├── README.md                   # Complete documentation & usage guide
-├── gesture_ai/                 # Standalone Python MediaPipe app
-│   ├── main.py                 # Main entry point & webcam preview window
-│   ├── hand_tracker.py         # MediaPipe hand landmarker wrapper
-│   ├── gesture_detector.py     # Geometric gesture classification rules
-│   ├── gesture_smoother.py     # Exponential moving average & deadzone smoothing
-│   ├── udp_sender.py           # UDP socket packet transmitter (port 4242)
-│   ├── calibration.py          # Coordinate normalization & sensitivity helper
-│   └── requirements.txt        # opencv-python, mediapipe, numpy
-└── godot/                      # Godot 4.x engine project
-    ├── project.godot           # Project configuration
-    ├── scenes/
-    │   ├── Main.tscn           # Root game scene
-    │   ├── Player.tscn         # Player jet node & components
-    │   ├── Bullet.tscn         # Cannon projectile
-    │   ├── EnemyBasic.tscn     # Red interceptor enemy
-    │   ├── EnemyShooter.tscn   # Shooter drone enemy
-    │   ├── EnemyKamikaze.tscn  # Kamikaze drone enemy
-    │   ├── Asteroid.tscn       # Procedural asteroid
-    │   ├── Boss.tscn           # Multi-phase flagship boss
-    │   ├── Powerup.tscn        # Collectible powerup items
-    │   ├── HUD.tscn            # High-tech sci-fi HUD overlay
-    │   ├── PauseMenu.tscn      # Pause menu screen
-    │   ├── GameOver.tscn       # Game over results screen
-    │   └── CalibrationScreen.tscn # In-game calibration overlay
-    ├── scripts/
-    │   ├── core/               # GameManager, ProceduralAssets, Configs
-    │   ├── player/             # Player jet flight physics & weapons
-    │   ├── enemies/            # Enemy AI & Boss phases
-    │   ├── weapons/            # Bullet & projectile logic
-    │   ├── powerups/           # Powerup manager & pickups
-    │   ├── world/              # WorldManager & StarfieldParallax
-    │   ├── camera/             # CameraController & ScreenShake
-    │   ├── input/              # InputManager, UDPReceiver, GestureInput, KeyboardInput
-    │   ├── ui/                 # HUD, Pause, GameOver, Calibration UI
-    │   └── effects/            # AudioManager & visual effects hooks
-    └── data/                   # Player, Enemy, Weapon, Difficulty .tres resources
+gravity/
+├── scenes/
+│   ├── MainMenu.tscn        # Startup title & arcade main menu
+│   ├── Game.tscn            # Primary endless game scene
+│   ├── Player.tscn          # Player spacecraft & exhaust components
+│   ├── Bullet.tscn          # Player pulse cannon projectile
+│   ├── EnemyBullet.tscn     # Enemy plasma projectile
+│   ├── EnemyBasic.tscn      # Interceptor scout enemy
+│   ├── EnemyShooter.tscn    # Telegraphed shooter drone
+│   ├── EnemyKamikaze.tscn   # Dive-bombing kamikaze unit
+│   ├── Asteroid.tscn        # Scalable rotating space rock
+│   ├── Mine.tscn            # Animated drifting proximity mine
+│   ├── Boss.tscn            # Elite dreadnought milestone encounter
+│   ├── Powerup.tscn         # Combat powerup pickup
+│   ├── EnergyPickup.tscn    # Collectible score & energy cell
+│   ├── Explosion.tscn       # Animated explosion with debris particles
+│   ├── FloatingText.tscn    # Floating score & near-miss text popup
+│   ├── HUD.tscn             # Arcade HUD with score, combo, hull hearts
+│   ├── PauseMenu.tscn       # In-game pause modal
+│   ├── GameOver.tscn        # Run termination summary & records
+│   └── SettingsMenu.tscn    # Volume, shake, and display settings
+├── scripts/
+│   ├── core/                # GameManager, ScoreManager, DifficultyManager, SaveManager
+│   ├── player/              # Player flight controller & combat
+│   ├── enemies/             # Enemy AI, Asteroids, Mines, and Boss
+│   ├── weapons/             # Projectile scripts
+│   ├── powerups/            # Powerup and Energy pickup logic
+│   ├── world/               # WorldManager, SpawnManager, ParallaxBackground
+│   ├── camera/              # CameraController with screen shake
+│   ├── ui/                  # MainMenu, HUD, PauseMenu, GameOver, Settings
+│   └── effects/             # AudioManager & FloatingText
+└── assets/                  # Imported fonts, UI packs, SpaceRage artwork
 ```
 
 ---
 
 ## 🚦 How to Run
 
-### 1. Launch Python Gesture AI Tracker (Webcam Mode)
-
-```bash
-cd gesture_fighter/gesture_ai
-pip install -r requirements.txt
-python3 main.py
-```
-
-*An OpenCV window will appear displaying live camera feed, hand landmarks, detected gesture name, FPS, and UDP broadcasting status.*
-
-### 2. Launch Godot Game
-
-```bash
-# Launch using Godot 4 editor or executable:
-godot --path gesture_fighter/godot
-```
-
----
-
-## 📡 UDP Communication Protocol
-
-- **Transport**: UDP Unicast
-- **Host**: `127.0.0.1`
-- **Port**: `4242`
-- **Packet Format**: JSON (UTF-8 encoded string)
-
-```json
-{
-  "x": 0.52,
-  "y": 0.34,
-  "shoot": true,
-  "shield": false,
-  "special": false,
-  "pause": false,
-  "confidence": 0.94,
-  "timestamp": 1723886400123
-}
-```
-
----
-
-## 🔧 Customization & Extension Guide
-
-### How to Add Custom Assets
-Assign your `.png` or `.svg` textures to the exported `texture` properties on `Player.tscn`, `EnemyBasic.tscn`, or `Asteroid.tscn` via the Godot Inspector. If no texture is assigned, `ProceduralAssets` generates sci-fi textures automatically.
-
-### How to Modify Difficulty
-Edit `godot/data/difficulty_config.tres`:
-- `base_speed`: Base scrolling speed
-- `speed_increase_per_100m`: Rate of difficulty scaling
-- `initial_spawn_interval`: Seconds between enemy/asteroid spawns
-- `boss_distance_meters`: Distance milestone for Boss arrival (default `3000.0` meters)
-
----
-
-## 🩺 Troubleshooting
-
-- **Webcam Not Detected**: Ensure webcam permissions are granted. If webcam is unavailable, the game automatically operates in Keyboard Mode without crashing.
-- **Godot UDP Not Receiving**: Verify firewall allows local UDP traffic on port `4242`. Press `F3` in-game to open the gesture debug panel and check UDP status.
+1. Open **Godot 4.x** (Forward+ or Compatibility mode).
+2. Import the project folder: `gravity`.
+3. Press **Play (F5)** to start the game directly from `res://scenes/MainMenu.tscn`.

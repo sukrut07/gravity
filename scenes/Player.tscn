@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://ks8qf8uhnhh4"]
 
 [ext_resource type="Script" uid="uid://d3oeo6uq56wdf" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="Script" uid="uid://ccxwl1py4dfy8" path="res://scripts/input/input_manager.gd" id="2_input_mgr"]
 [ext_resource type="Texture2D" uid="uid://4khqcckbp1gu" path="res://SpaceRage/Shadows/player_shadow_m.png" id="3_shadow"]
 [ext_resource type="Texture2D" uid="uid://d217ycaelkjop" path="res://SpaceRage/Player/player_b_m.png" id="4_p_m"]
 [ext_resource type="Texture2D" uid="uid://dwv5od08ihkav" path="res://SpaceRage/Player/player_b_l1.png" id="5_p_l1"]
@@ -94,12 +93,13 @@ rotation = 1.5707964
 texture = ExtResource("3_shadow")
 
 [node name="EngineExhaust" type="AnimatedSprite2D" parent="." unique_id=1376850969]
-position = Vector2(-28, 0)
+position = Vector2(-34, 0)
 rotation = 1.5707964
 sprite_frames = SubResource("SpriteFrames_exhaust")
 autoplay = "default"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=493634065]
+texture_filter = 1
 rotation = 1.5707964
 sprite_frames = SubResource("SpriteFrames_player")
 animation = &"down_1"
@@ -140,8 +140,6 @@ scale_amount_min = 2.0
 scale_amount_max = 4.0
 color = Color(0.2, 0.8, 1, 0.6)
 
-[node name="InputManager" type="Node" parent="." unique_id=1935319605]
-script = ExtResource("2_input_mgr")
 
 [node name="CameraTarget" type="Node2D" parent="." unique_id=675967425]
 position = Vector2(100, 0)

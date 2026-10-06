@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://energypickup01"]
+
+[ext_resource type="Script" path="res://scripts/powerups/energy_pickup.gd" id="1_ep_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/bar_round_gloss_small_square.png" id="2_ep_tex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_energy"]
+radius = 14.0
+
+[node name="EnergyPickup" type="Area2D"]
+collision_layer = 32
+collision_mask = 1
+script = ExtResource("1_ep_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.3, 1.0, 0.4, 0.95)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("2_ep_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_energy")

@@ -1,41 +1,33 @@
+class_name GameManagerClass
 extends Node
 
+## Master Game Manager for Gravity: Endless Flight.
+## Governs game states, distance progression, special ability charge, and session life-cycle.
+
 signal state_changed(old_state: GameState, new_state: GameState)
-signal score_updated(new_score: int, multiplier: int)
 signal distance_updated(distance_m: float)
-signal destroyed_count_updated(count: int)
-signal player_health_updated(current_health: int, shield_active: bool)
-signal milestone_reached(distance_m: float, title: String)
-signal section_changed(section_name: String, prompt_text: String)
-signal level_completed()
+signal special_energy_updated(current: float, max_energy: float, is_ready: bool)
+signal game_over_processed(stats: Dictionary)
 
 enum GameState {
-	BOOT,
-	CALIBRATION,
-	LEVEL_INTRO,
-	READY,
+	MENU,
 	PLAYING,
 	PAUSED,
-	GAME_OVER,
-	LEVEL_COMPLETE
+	GAME_OVER
 }
 
-var current_state: GameState = GameState.BOOT
+var current_state: GameState = GameState.MENU
 
-var score: int = 0
-var score_multiplier: int = 1
 var distance_meters: float = 0.0
-var destroyed_count: int = 0
 var shots_fired: int = 0
 var shots_hit: int = 0
 var powerups_collected: int = 0
 
-var gesture_mode_enabled: bool = true
-var debug_overlay_visible: bool = false
-var view_colliders_enabled: bool = false
+var special_energy: float = 0.0
+const MAX_SPECIAL_ENERGY: float = 100.0
 
 func _ready() -> void:
-	change_state(GameState.READY)
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func change_state(new_state: GameState) -> void:
 	if current_state == new_state:
@@ -50,26 +42,30 @@ func change_state(new_state: GameState) -> void:
 		get_tree().paused = false
 
 func start_game() -> void:
-	score = 0
-	score_multiplier = 1
 	distance_meters = 0.0
-	destroyed_count = 0
 	shots_fired = 0
 	shots_hit = 0
 	powerups_collected = 0
-	emit_signal("score_updated", score, score_multiplier)
+	special_energy = 25.0 # Starter boost
+	
+	ScoreManager.reset_run()
+	DifficultyManager.reset_run()
+	
 	emit_signal("distance_updated", distance_meters)
-	emit_signal("destroyed_count_updated", destroyed_count)
+	emit_signal("special_energy_updated", special_energy, MAX_SPECIAL_ENERGY, is_special_ready())
 	change_state(GameState.PLAYING)
 
-func add_score(points: int) -> void:
-	score += points * score_multiplier
-	emit_signal("score_updated", score, score_multiplier)
-
-func increment_destroyed() -> void:
-	destroyed_count += 1
-	add_score(100)
-	emit_signal("destroyed_count_updated", destroyed_count)
+func update_distance(delta_meters: float, delta_time: float) -> void:
+	if current_state != GameState.PLAYING:
+		return
+	distance_meters += delta_meters
+	emit_signal("distance_updated", distance_meters)
+	
+	ScoreManager.add_distance_score(delta_meters)
+	DifficultyManager.update_difficulty(distance_meters, delta_time)
+	
+	# Passive slow trickle of special energy while flying
+	add_special_energy(delta_meters * 0.012)
 
 func record_shot_fired() -> void:
 	shots_fired += 1
@@ -79,27 +75,57 @@ func record_shot_hit() -> void:
 
 func record_powerup_collected() -> void:
 	powerups_collected += 1
-	add_score(250)
+	ScoreManager.add_powerup_score()
+	add_special_energy(15.0)
+
+func add_special_energy(amount: float) -> void:
+	var prev_ready = is_special_ready()
+	special_energy = clampf(special_energy + amount, 0.0, MAX_SPECIAL_ENERGY)
+	var now_ready = is_special_ready()
+	emit_signal("special_energy_updated", special_energy, MAX_SPECIAL_ENERGY, now_ready)
+	if not prev_ready and now_ready:
+		AudioManager.play_sound("shield_activate")
+
+func is_special_ready() -> bool:
+	return special_energy >= MAX_SPECIAL_ENERGY
+
+func consume_special() -> bool:
+	if is_special_ready():
+		special_energy = 0.0
+		emit_signal("special_energy_updated", special_energy, MAX_SPECIAL_ENERGY, false)
+		AudioManager.play_sound("special_blast")
+		return true
+	return false
 
 func get_accuracy_percent() -> float:
 	if shots_fired <= 0:
 		return 100.0
 	return clampf((float(shots_hit) / float(shots_fired)) * 100.0, 0.0, 100.0)
 
-func update_distance(delta_dist: float) -> void:
-	distance_meters += delta_dist
-	emit_signal("distance_updated", distance_meters)
-
 func trigger_game_over() -> void:
-	if current_state == GameState.PLAYING:
-		AudioManager.play_sound("game_over")
-		change_state(GameState.GAME_OVER)
-
-func trigger_level_complete() -> void:
-	if current_state == GameState.PLAYING:
-		AudioManager.play_sound("boss_destroy")
-		emit_signal("level_completed")
-		change_state(GameState.LEVEL_COMPLETE)
+	if current_state != GameState.PLAYING:
+		return
+		
+	AudioManager.play_sound("game_over")
+	var is_new_record = SaveManager.update_records(
+		ScoreManager.score,
+		distance_meters,
+		ScoreManager.max_combo_reached
+	)
+	
+	var stats = {
+		"score": ScoreManager.score,
+		"distance": distance_meters,
+		"enemies_destroyed": ScoreManager.enemies_destroyed,
+		"max_combo": ScoreManager.max_combo_reached,
+		"accuracy": get_accuracy_percent(),
+		"is_new_high_score": is_new_record,
+		"best_score": SaveManager.best_score,
+		"best_distance": SaveManager.best_distance
+	}
+	
+	emit_signal("game_over_processed", stats)
+	change_state(GameState.GAME_OVER)
 
 func toggle_pause() -> void:
 	if current_state == GameState.PLAYING:

@@ -1,0 +1,40 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/parallax_background.gd" id="1_parallax"]
+[ext_resource type="Script" path="res://scripts/world/world_manager.gd" id="2_world_mgr"]
+[ext_resource type="Script" path="res://scripts/world/spawn_manager.gd" id="3_spawn_mgr"]
+[ext_resource type="PackedScene" uid="uid://ks8qf8uhnhh4" path="res://scenes/Player.tscn" id="4_player"]
+[ext_resource type="Script" path="res://scripts/camera/camera_controller.gd" id="5_camera"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="6_hud"]
+[ext_resource type="PackedScene" path="res://scenes/PauseMenu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" path="res://scenes/GameOver.tscn" id="8_gameover"]
+
+[node name="Game" type="Node2D"]
+
+[node name="StarfieldParallax" type="ParallaxBackground" parent="."]
+script = ExtResource("1_parallax")
+
+[node name="LayerNebula" type="ParallaxLayer" parent="StarfieldParallax"]
+
+[node name="LayerStars1" type="ParallaxLayer" parent="StarfieldParallax"]
+
+[node name="LayerStars2" type="ParallaxLayer" parent="StarfieldParallax"]
+
+[node name="WorldManager" type="Node2D" parent="."]
+script = ExtResource("2_world_mgr")
+
+[node name="SpawnManager" type="Node2D" parent="WorldManager"]
+script = ExtResource("3_spawn_mgr")
+
+[node name="Player" parent="." instance=ExtResource("4_player")]
+position = Vector2(200, 360)
+
+[node name="CameraController" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+script = ExtResource("5_camera")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("7_pause")]
+
+[node name="GameOver" parent="." instance=ExtResource("8_gameover")]

@@ -14,12 +14,15 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Gesture Fighter"
-run/main_scene="res://scenes/Main.tscn"
+config/name="Gravity"
+run/main_scene="res://scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
 
+SaveManager="*res://scripts/core/save_manager.gd"
+DifficultyManager="*res://scripts/core/difficulty_manager.gd"
+ScoreManager="*res://scripts/core/score_manager.gd"
 GameManager="*res://scripts/core/game_manager.gd"
 AudioManager="*res://scripts/effects/audio_manager.gd"
 
@@ -27,6 +30,7 @@ AudioManager="*res://scripts/effects/audio_manager.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/size/mode=3
 window/stretch/mode="canvas_items"
 
 [input]
@@ -73,6 +77,12 @@ special={
 pause={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194305,"physical_keycode":4194305,"key_label":4194305,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":80,"physical_keycode":80,"key_label":80,"unicode":112,"location":0,"echo":false,"script":null)
+]
+}
+restart={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":82,"physical_keycode":82,"key_label":82,"unicode":114,"location":0,"echo":false,"script":null)
 ]
 }
 
@@ -85,3 +95,7 @@ pause={
 2d_physics/layer_5="Obstacle"
 2d_physics/layer_6="Powerup"
 2d_physics/layer_7="Environment"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0

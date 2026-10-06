@@ -1,0 +1,62 @@
+[gd_scene load_steps=12 format=3 uid="uid://mine01scene"]
+
+[ext_resource type="Script" path="res://scripts/enemies/mine.gd" id="1_mine_script"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_01.png" id="2_m01"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_02.png" id="3_m02"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_03.png" id="4_m03"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_04.png" id="5_m04"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_05.png" id="6_m05"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_06.png" id="7_m06"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_07.png" id="8_m07"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_08.png" id="9_m08"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/mine_1_09.png" id="10_m09"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_mine"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_m01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_m02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_m03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_m04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_m05")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_m06")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_m07")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_m08")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_m09")
+}],
+"loop": true,
+"name": &"default",
+"speed": 12.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mine"]
+radius = 18.0
+
+[node name="Mine" type="Area2D"]
+collision_layer = 16
+collision_mask = 5
+script = ExtResource("1_mine_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_mine")
+autoplay = "default"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_mine")

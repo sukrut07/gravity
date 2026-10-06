@@ -1,31 +1,48 @@
 class_name GameOver
 extends CanvasLayer
 
-@onready var final_score_label: Label = $Panel/VBox/FinalScoreLabel
-@onready var final_distance_label: Label = $Panel/VBox/FinalDistanceLabel
-@onready var final_destroyed_label: Label = $Panel/VBox/FinalDestroyedLabel
-@onready var restart_button: Button = $Panel/VBox/RestartButton
-@onready var quit_button: Button = $Panel/VBox/QuitButton
+## Polished Game Over screen displaying run statistics and high score records.
+
+@onready var title_label: Label = $PanelContainer/MarginContainer/VBox/TitleLabel
+@onready var high_score_badge: Label = $PanelContainer/MarginContainer/VBox/HighScoreBadge
+@onready var final_score_label: Label = $PanelContainer/MarginContainer/VBox/StatsContainer/ScoreLabel
+@onready var final_distance_label: Label = $PanelContainer/MarginContainer/VBox/StatsContainer/DistanceLabel
+@onready var final_destroyed_label: Label = $PanelContainer/MarginContainer/VBox/StatsContainer/DestroyedLabel
+@onready var final_combo_label: Label = $PanelContainer/MarginContainer/VBox/StatsContainer/ComboLabel
+@onready var retry_button: Button = $PanelContainer/MarginContainer/VBox/RetryButton
+@onready var menu_button: Button = $PanelContainer/MarginContainer/VBox/MenuButton
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
-	GameManager.state_changed.connect(_on_state_changed)
-	restart_button.pressed.connect(_on_restart_pressed)
-	quit_button.pressed.connect(_on_quit_pressed)
+	GameManager.game_over_processed.connect(_on_game_over_processed)
+	retry_button.pressed.connect(_on_retry_pressed)
+	menu_button.pressed.connect(_on_menu_pressed)
 
-func _on_state_changed(old_state: GameManager.GameState, new_state: GameManager.GameState) -> void:
-	if new_state == GameManager.GameState.GAME_OVER:
-		visible = true
-		final_score_label.text = "SCORE: %06d" % GameManager.score
-		final_distance_label.text = "DISTANCE: %04d m" % int(GameManager.distance_meters)
-		final_destroyed_label.text = "DESTROYED: %03d" % GameManager.destroyed_count
+func _on_game_over_processed(stats: Dictionary) -> void:
+	visible = true
+	final_score_label.text = "FINAL SCORE: %d" % stats.get("score", 0)
+	final_distance_label.text = "DISTANCE: %d m" % int(stats.get("distance", 0.0))
+	final_destroyed_label.text = "ENEMIES DESTROYED: %d" % stats.get("enemies_destroyed", 0)
+	final_combo_label.text = "MAX COMBO: x%d" % stats.get("max_combo", 1)
+	
+	if stats.get("is_new_high_score", false):
+		high_score_badge.text = "★ NEW HIGH SCORE! ★"
+		high_score_badge.visible = true
+		high_score_badge.modulate = Color(1.0, 0.85, 0.1, 1.0)
 	else:
-		visible = false
+		high_score_badge.text = "BEST: %d PTS (%d m)" % [stats.get("best_score", 0), int(stats.get("best_distance", 0.0))]
+		high_score_badge.visible = true
+		high_score_badge.modulate = Color(0.7, 0.8, 1.0, 0.8)
 
-func _on_restart_pressed() -> void:
+func _on_retry_pressed() -> void:
+	AudioManager.play_sound("button_click")
 	visible = false
 	GameManager.start_game()
 	get_tree().reload_current_scene()
 
-func _on_quit_pressed() -> void:
-	get_tree().quit()
+func _on_menu_pressed() -> void:
+	AudioManager.play_sound("button_click")
+	visible = false
+	GameManager.change_state(GameManager.GameState.MENU)
+	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

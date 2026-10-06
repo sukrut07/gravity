@@ -1,119 +1,152 @@
 class_name HUD
 extends CanvasLayer
 
-@onready var score_label: Label = $TopLeft/ScoreLabel
-@onready var destroyed_label: Label = $TopLeft/DestroyedLabel
-@onready var multiplier_label: Label = $TopLeft/MultiplierLabel
-@onready var distance_label: Label = $TopCenter/DistanceLabel
-@onready var health_label: Label = $TopRight/HealthLabel
-@onready var gesture_label: Label = $BottomRight/GestureLabel
-@onready var milestone_label: Label = $MilestoneNotification
-@onready var section_prompt_label: Label = $SectionPrompt
-@onready var debug_overlay: PanelContainer = $DebugOverlay
-@onready var debug_info_label: Label = $DebugOverlay/DebugInfoLabel
+## High-polish arcade HUD for Gravity: Endless Flight.
+## Displays score, combo badges, distance, health hearts, powerups, and special meter.
 
-var milestone_timer: float = 0.0
-var section_prompt_timer: float = 0.0
-var player_input_mgr: InputManager = null
+@onready var score_label: Label = $TopLeft/ScoreLabel
+@onready var combo_label: Label = $TopLeft/ComboLabel
+
+@onready var distance_label: Label = $TopCenter/DistanceLabel
+@onready var sector_label: Label = $TopCenter/SectorLabel
+
+@onready var health_label: Label = $TopRight/HealthLabel
+@onready var shield_label: Label = $TopRight/ShieldLabel
+
+@onready var powerups_label: Label = $BottomLeft/PowerupsLabel
+@onready var special_label: Label = $BottomRight/SpecialLabel
+
+@onready var announcement_label: Label = $AnnouncementContainer/AnnouncementLabel
+@onready var controls_hint: Label = $ControlsHint
+
+var announcement_timer: float = 0.0
+var hint_timer: float = 5.0
 
 func _ready() -> void:
-	GameManager.score_updated.connect(_on_score_updated)
+	ScoreManager.score_changed.connect(_on_score_changed)
+	ScoreManager.combo_changed.connect(_on_combo_changed)
 	GameManager.distance_updated.connect(_on_distance_updated)
-	GameManager.destroyed_count_updated.connect(_on_destroyed_updated)
-	GameManager.milestone_reached.connect(_on_milestone_reached)
-	GameManager.section_changed.connect(_on_section_changed)
+	GameManager.special_energy_updated.connect(_on_special_energy_updated)
+	DifficultyManager.tier_changed.connect(_on_tier_changed)
+	DifficultyManager.milestone_reached.connect(_on_milestone_reached)
+	DifficultyManager.event_started.connect(_on_event_started)
 	
-	milestone_label.visible = false
-	section_prompt_label.visible = false
-	debug_overlay.visible = false
+	var players = get_tree().get_nodes_in_group("player")
+	if players.size() > 0:
+		var p = players[0]
+		if p.has_signal("health_changed"):
+			p.health_changed.connect(_on_health_changed)
+		if p.has_signal("shield_changed"):
+			p.shield_changed.connect(_on_shield_changed)
+			
+	announcement_label.visible = false
 	
-	_on_score_updated(GameManager.score, GameManager.score_multiplier)
+	_on_score_changed(ScoreManager.score)
+	_on_combo_changed(ScoreManager.combo_multiplier, 0.0)
 	_on_distance_updated(GameManager.distance_meters)
-	_on_destroyed_updated(GameManager.destroyed_count)
+	_on_special_energy_updated(GameManager.special_energy, GameManager.MAX_SPECIAL_ENERGY, GameManager.is_special_ready())
+	_on_tier_changed(DifficultyManager.current_tier)
+	_on_health_changed(5, 5)
 
 func _process(delta: float) -> void:
-	if milestone_timer > 0.0:
-		milestone_timer -= delta
-		if milestone_timer <= 0.0:
-			milestone_label.visible = false
+	if announcement_timer > 0.0:
+		announcement_timer -= delta
+		if announcement_timer <= 0.0:
+			announcement_label.visible = false
+			
+	if hint_timer > 0.0:
+		hint_timer -= delta
+		if hint_timer <= 0.0 and controls_hint != null:
+			var tween = create_tween()
+			tween.tween_property(controls_hint, "modulate:a", 0.0, 0.8)
+			
+	# Update active powerups label from player state
+	var players = get_tree().get_nodes_in_group("player")
+	if players.size() > 0:
+		var p = players[0]
+		if p.powerup_timer > 0.0 and p.active_powerup_type != "":
+			var p_name = p.active_powerup_type.replace("_", " ").to_upper()
+			powerups_label.text = "ACTIVE: %s (%.1fs)" % [p_name, p.powerup_timer]
+			powerups_label.visible = true
+		else:
+			powerups_label.visible = false
 
-	if section_prompt_timer > 0.0:
-		section_prompt_timer -= delta
-		if section_prompt_timer <= 0.0:
-			section_prompt_label.visible = false
+func _on_score_changed(score_val: int) -> void:
+	score_label.text = "SCORE: %06d" % score_val
 
-	# Lazy find Player InputManager
-	if player_input_mgr == null:
-		var players = get_tree().get_nodes_in_group("player")
-		if players.size() > 0:
-			player_input_mgr = players[0].get_node_or_null("InputManager")
-
-	# Update bottom-right Gesture Connection Status
-	if player_input_mgr != null and player_input_mgr.is_gesture_active():
-		var g_name = player_input_mgr.get_gesture_name()
-		var conf = int(player_input_mgr.get_confidence() * 100)
-		gesture_label.text = "GESTURE: CONNECTED (%s %d%%)" % [g_name, conf]
-		gesture_label.modulate = Color(0.2, 0.9, 0.4, 1.0)
+func _on_combo_changed(mult: int, timer_ratio: float) -> void:
+	if mult > 1:
+		combo_label.text = "COMBO x%d" % mult
+		combo_label.visible = true
+		if mult >= 5:
+			combo_label.modulate = Color(1.0, 0.2, 0.2, 1.0) # Fiery red max combo
+			combo_label.scale = Vector2(1.2, 1.2)
+		elif mult >= 3:
+			combo_label.modulate = Color(1.0, 0.8, 0.1, 1.0) # Gold combo
+			combo_label.scale = Vector2(1.1, 1.1)
+		else:
+			combo_label.modulate = Color(0.2, 0.9, 1.0, 1.0) # Cyan combo
+			combo_label.scale = Vector2(1.0, 1.0)
 	else:
-		gesture_label.text = "GESTURE: DISCONNECTED (KEYBOARD MODE)"
-		gesture_label.modulate = Color(0.7, 0.7, 0.7, 0.8)
-
-	# Handle F3 Debug Overlay Toggle
-	if Input.is_key_pressed(KEY_F3):
-		if not Input.is_action_just_pressed("ui_focus_next"):
-			# debounced toggle
-			pass
-
-	if Input.is_action_just_pressed("ui_focus_next") or Input.is_physical_key_pressed(KEY_F3):
-		# Toggle on press
-		pass
-
-	if debug_overlay.visible:
-		var fps = Engine.get_frames_per_second()
-		var is_conn = player_input_mgr != null and player_input_mgr.is_gesture_active()
-		var g_name = player_input_mgr.get_gesture_name() if player_input_mgr else "N/A"
-		var conf = int((player_input_mgr.get_confidence() if player_input_mgr else 0.0) * 100)
-		var move_y = player_input_mgr.get_move_y() if player_input_mgr else 0.0
-		var shooting = player_input_mgr.is_shooting() if player_input_mgr else false
-		var shielding = player_input_mgr.is_shield_active() if player_input_mgr else false
-		var move_str = "UP" if move_y < -0.1 else ("DOWN" if move_y > 0.1 else "NEUTRAL")
-
-		debug_info_label.text = "FPS: %d\nHAND: %s\nGESTURE: %s\nCONFIDENCE: %d%%\nMOVE: %s (%.2f)\nSHOOT: %s\nSHIELD: %s" % [
-			fps,
-			"CONNECTED" if is_conn else "DISCONNECTED",
-			g_name,
-			conf,
-			move_str,
-			move_y,
-			"YES" if shooting else "NO",
-			"YES" if shielding else "NO"
-		]
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F3:
-			debug_overlay.visible = not debug_overlay.visible
-
-func _on_score_updated(score: int, multiplier: int) -> void:
-	score_label.text = "SCORE: %06d" % score
-	multiplier_label.text = "MULTIPLIER: x%d" % multiplier
+		combo_label.visible = false
 
 func _on_distance_updated(dist_m: float) -> void:
-	distance_label.text = "DISTANCE: %04d / 3000 m" % int(dist_m)
+	distance_label.text = "%d m" % int(dist_m)
 
-func _on_destroyed_updated(count: int) -> void:
-	destroyed_label.text = "DESTROYED: %03d" % count
+func _on_tier_changed(tier_name: String) -> void:
+	sector_label.text = tier_name
 
-func _on_milestone_reached(dist_m: float, title: String) -> void:
-	milestone_label.text = "%s — %d METERS" % [title, int(dist_m)]
-	milestone_label.visible = true
-	milestone_timer = 3.0
-
-func _on_section_changed(section_name: String, prompt_text: String) -> void:
-	milestone_label.text = section_name
-	milestone_label.visible = true
-	milestone_timer = 3.5
+func _on_health_changed(current_hp: int, max_hp: int) -> void:
+	var hearts_str = ""
+	for i in range(max_hp):
+		if i < current_hp:
+			hearts_str += "♥ "
+		else:
+			hearts_str += "♡ "
+	health_label.text = "HULL: " + hearts_str.strip_edges()
 	
-	section_prompt_label.text = prompt_text
-	section_prompt_label.visible = true
-	section_prompt_timer = 4.5
+	if current_hp <= 1:
+		health_label.modulate = Color(1.0, 0.2, 0.2, 1.0)
+	elif current_hp <= 2:
+		health_label.modulate = Color(1.0, 0.6, 0.1, 1.0)
+	else:
+		health_label.modulate = Color(0.2, 0.95, 0.4, 1.0)
+
+func _on_shield_changed(is_active: bool, duration: float) -> void:
+	if is_active:
+		shield_label.text = "SHIELD: ACTIVE (%.1fs)" % duration
+		shield_label.modulate = Color(0.2, 0.8, 1.0, 1.0)
+	else:
+		shield_label.text = "SHIELD: [SHIFT]"
+		shield_label.modulate = Color(0.7, 0.7, 0.8, 0.8)
+
+func _on_special_energy_updated(current: float, max_energy: float, is_ready: bool) -> void:
+	var pct = int((current / max_energy) * 100)
+	if is_ready:
+		special_label.text = "[E] SCREEN BURST: READY!"
+		special_label.modulate = Color(1.0, 0.9, 0.2, 1.0)
+	else:
+		var bars_total = 10
+		var filled = int((current / max_energy) * bars_total)
+		var bar_str = ""
+		for i in range(bars_total):
+			bar_str += "█" if i < filled else "░"
+		special_label.text = "SPECIAL [%s] %d%%" % [bar_str, pct]
+		special_label.modulate = Color(0.7, 0.7, 0.8, 0.85)
+
+func _on_milestone_reached(_dist: float, title: String) -> void:
+	show_announcement(title, Color(0.2, 0.9, 1.0), 3.0)
+
+func _on_event_started(_event_name: String, banner: String) -> void:
+	show_announcement(banner, Color(1.0, 0.3, 0.3), 3.5)
+
+func show_announcement(text: String, col: Color, duration: float) -> void:
+	announcement_label.text = text
+	announcement_label.modulate = col
+	announcement_label.visible = true
+	announcement_timer = duration
+	
+	# Scale punch animation
+	announcement_label.scale = Vector2(0.8, 0.8)
+	var tween = create_tween()
+	tween.tween_property(announcement_label, "scale", Vector2(1.0, 1.0), 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

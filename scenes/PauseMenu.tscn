@@ -1,56 +1,90 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=6 format=3 uid="uid://pausemenu01"]
 
-[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1_pause"]
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1_pause_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/Kenney Future.ttf" id="2_font_title"]
+[ext_resource type="Texture2D" path="res://assets/ui/panel_glass.png" id="3_panel_tex"]
+[ext_resource type="PackedScene" path="res://scenes/SettingsMenu.tscn" id="4_settings_scene"]
 
 [node name="PauseMenu" type="CanvasLayer"]
 process_mode = 3
-script = ExtResource("1_pause")
+layer = 15
+script = ExtResource("1_pause_script")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Backdrop" type="ColorRect" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
+color = Color(0, 0, 0, 0.65)
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="NinePatchRect" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -160.0
-offset_top = -140.0
-offset_right = 160.0
-offset_bottom = 140.0
+offset_left = -180.0
+offset_top = -180.0
+offset_right = 180.0
+offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
+texture = ExtResource("3_panel_tex")
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
 
-[node name="VBox" type="VBoxContainer" parent="Panel"]
-layout_mode = 2
-alignment = 1
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
 
-[node name="Title" type="Label" parent="Panel/VBox"]
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font_title")
 theme_override_font_sizes/font_size = 28
-text = "GAME PAUSED"
+text = "PAUSED"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="Panel/VBox"]
+[node name="ResumeButton" type="Button" parent="PanelContainer/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-
-[node name="ResumeButton" type="Button" parent="Panel/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 16
 text = "RESUME"
 
-[node name="RestartButton" type="Button" parent="Panel/VBox"]
+[node name="RestartButton" type="Button" parent="PanelContainer/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 16
 text = "RESTART"
 
-[node name="QuitButton" type="Button" parent="Panel/VBox"]
+[node name="SettingsButton" type="Button" parent="PanelContainer/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "QUIT"
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 16
+text = "SETTINGS"
+
+[node name="MenuButton" type="Button" parent="PanelContainer/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 16
+text = "MAIN MENU"
+
+[node name="SettingsMenu" parent="." instance=ExtResource("4_settings_scene")]
