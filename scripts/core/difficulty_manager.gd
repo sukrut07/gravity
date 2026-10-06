@@ -23,11 +23,12 @@ var event_timer: float = 0.0
 var next_event_distance: float = 2000.0
 var last_milestone: float = 0.0
 
-# Dynamic parameters computed from distance
+# Dynamic parameters computed from distance and score
 var world_speed: float = 320.0
 var spawn_interval: float = 2.6
 var enemy_speed_mult: float = 1.0
 var hazard_rate: float = 0.35 # ratio of hazards vs enemies
+var obstacle_density_bonus: int = 0 # increases number of obstacles spawned per wave endlessly
 
 func reset_run() -> void:
 	current_tier = "SCOUT SECTOR"
@@ -39,31 +40,48 @@ func reset_run() -> void:
 	spawn_interval = 2.6
 	enemy_speed_mult = 1.0
 	hazard_rate = 0.35
+	obstacle_density_bonus = 0
 
 func update_difficulty(distance_m: float, delta: float) -> void:
-	# Compute smooth curve values
-	# World speed: from 320 at 0m up to max 680 at 8000m
-	var dist_factor = clampf(distance_m / 8000.0, 0.0, 1.0)
-	world_speed = lerpf(320.0, 680.0, sqrt(dist_factor))
+	var current_score = ScoreManager.score
+	# Endless progression factor driven by BOTH score and distance
+	var score_progress = float(current_score) / 4500.0
+	var dist_progress = distance_m / 5000.0
+	var total_progress = score_progress + dist_progress
 	
-	# Spawn interval: from 2.6s down to 0.9s
-	spawn_interval = maxf(0.85, 2.6 - (1.75 * dist_factor))
+	# Obstacle density bonus scales endlessly every 2200 pts / 2800 meters
+	obstacle_density_bonus = int(current_score / 2200.0) + int(distance_m / 2800.0)
 	
-	# Enemy speed multiplier: 1.0 -> 1.55
-	enemy_speed_mult = 1.0 + (0.55 * dist_factor)
+	# World flight speed smoothly scales up toward 720 px/s with soft diminishing returns
+	world_speed = 320.0 + 400.0 * (1.0 - exp(-total_progress * 0.32))
 	
-	# Hazard ratio: 0.35 -> 0.65
-	hazard_rate = 0.35 + (0.30 * dist_factor)
+	# Spawn interval decreases smoothly and endlessly from 2.6s down to 0.52s
+	spawn_interval = maxf(0.52, 2.6 / (1.0 + total_progress * 0.35))
 	
-	# Check Tiers
+	# Enemy speed multiplier scales with progress
+	enemy_speed_mult = 1.0 + (0.32 * total_progress)
+	
+	# Hazard ratio shifts higher as score rises (up to 75% hazards)
+	hazard_rate = minf(0.75, 0.35 + (0.08 * score_progress))
+	
+	# Check Endless Dynamic Tiers (based on combined score and distance)
 	var new_tier = "SCOUT SECTOR"
-	if distance_m >= 8000.0:
+	var effective_milestone = current_score + int(distance_m * 1.5)
+	if effective_milestone >= 45000:
+		new_tier = "COSMIC MAELSTROM"
+	elif effective_milestone >= 30000:
+		new_tier = "ENDLESS ABYSS"
+	elif effective_milestone >= 20000:
+		new_tier = "OMEGA HORIZON"
+	elif effective_milestone >= 14000:
+		new_tier = "SINGULARITY CORE"
+	elif effective_milestone >= 9000:
 		new_tier = "HYPERSPACE VOID"
-	elif distance_m >= 5000.0:
+	elif effective_milestone >= 5500:
 		new_tier = "GRAVITY WELL"
-	elif distance_m >= 2500.0:
+	elif effective_milestone >= 3000:
 		new_tier = "DEEP NEBULA"
-	elif distance_m >= 1000.0:
+	elif effective_milestone >= 1200:
 		new_tier = "OUTER PATROL"
 		
 	if new_tier != current_tier:

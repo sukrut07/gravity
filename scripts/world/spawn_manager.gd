@@ -16,6 +16,7 @@ extends Node2D
 var spawn_timer: float = 0.0
 var powerup_timer: float = 0.0
 var energy_timer: float = 0.0
+var ambient_hazard_timer: float = 0.0
 var last_pattern_index: int = -1
 var elite_active: bool = false
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -45,6 +46,15 @@ func _process(delta: float) -> void:
 		energy_timer = 0.0
 		spawn_energy_trail()
 
+	# Ambient hazard stream: as score climbs, rogue asteroids and mines spawn continuously
+	var cur_score = ScoreManager.score
+	if cur_score >= 600:
+		ambient_hazard_timer += delta
+		var ambient_target = maxf(1.4, 5.0 / (1.0 + (float(cur_score) / 5500.0)))
+		if ambient_hazard_timer >= ambient_target:
+			ambient_hazard_timer = 0.0
+			spawn_ambient_hazard()
+
 	# In Elite event, suppress regular wave spawns until boss is destroyed
 	if elite_active:
 		return
@@ -55,6 +65,16 @@ func _process(delta: float) -> void:
 	if spawn_timer >= current_interval:
 		spawn_timer = 0.0
 		spawn_next_pattern()
+
+func spawn_ambient_hazard() -> void:
+	var y = rng.randf_range(MIN_Y + 30.0, MAX_Y - 30.0)
+	if rng.randf() > 0.4:
+		var ast = _instantiate_node(asteroid_scene, Vector2(SPAWN_X, y))
+		if ast is Asteroid:
+			var sizes = ["small", "medium", "large"]
+			ast.size_type = sizes[rng.randi() % sizes.size()]
+	else:
+		_instantiate_node(mine_scene, Vector2(SPAWN_X, y))
 
 func spawn_next_pattern() -> void:
 	var current_event = DifficultyManager.current_event
@@ -106,25 +126,32 @@ func pattern_enemy_pair() -> void:
 	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, mid_y - gap * 0.5))
 	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 60.0, mid_y + gap * 0.5))
 
-# Pattern C: Asteroid line (staggered with open bypass)
+# Pattern C: Asteroid line (staggered with open bypass - scales count with score)
 func pattern_asteroid_line() -> void:
+	var bonus = DifficultyManager.obstacle_density_bonus
+	var count = 3 + mini(bonus, 5) # 3 to 8 asteroids
 	var safe_lane_top = rng.randf() > 0.5
-	var base_y = 160.0 if safe_lane_top else 520.0
-	for i in range(3):
-		var ast = _instantiate_node(asteroid_scene, Vector2(SPAWN_X + (i * 90.0), base_y + (i * 30.0)))
+	var base_y = 150.0 if safe_lane_top else 530.0
+	for i in range(count):
+		var y_wobble = sin(i * 0.8) * 35.0
+		var ast = _instantiate_node(asteroid_scene, Vector2(SPAWN_X + (i * 85.0), base_y + y_wobble))
 		if ast is Asteroid:
-			ast.size_type = "small" if i != 1 else "medium"
+			ast.size_type = "small" if i % 2 == 0 else "medium"
 
-# Pattern D: Asteroid corridor (top and bottom with safe flight corridor)
+# Pattern D: Asteroid corridor (extended gauntlet scaling with score)
 func pattern_asteroid_corridor() -> void:
-	var safe_center_y = rng.randf_range(260.0, 460.0)
-	var corridor_gap = 240.0 # Guaranteed safe clearance for player
+	var bonus = DifficultyManager.obstacle_density_bonus
+	var safe_center_y = rng.randf_range(270.0, 450.0)
+	var corridor_gap = maxf(185.0, 240.0 - float(bonus) * 5.0) # slightly tighter with score while safe
+	var gates = 2 + mini(int(bonus / 2), 3) # 2 to 5 gates deep
 	
-	var ast1 = _instantiate_node(asteroid_scene, Vector2(SPAWN_X, safe_center_y - (corridor_gap * 0.5 + 40.0)))
-	if ast1 is Asteroid: ast1.size_type = "medium"
-	
-	var ast2 = _instantiate_node(asteroid_scene, Vector2(SPAWN_X + 30.0, safe_center_y + (corridor_gap * 0.5 + 40.0)))
-	if ast2 is Asteroid: ast2.size_type = "medium"
+	for i in range(gates):
+		var x_off = i * 95.0
+		var ast1 = _instantiate_node(asteroid_scene, Vector2(SPAWN_X + x_off, safe_center_y - (corridor_gap * 0.5 + 40.0)))
+		if ast1 is Asteroid: ast1.size_type = "medium" if i % 2 == 0 else "small"
+		
+		var ast2 = _instantiate_node(asteroid_scene, Vector2(SPAWN_X + x_off + 35.0, safe_center_y + (corridor_gap * 0.5 + 40.0)))
+		if ast2 is Asteroid: ast2.size_type = "medium" if i % 2 == 1 else "small"
 
 # Pattern E: Enemy + Powerup combo
 func pattern_enemy_and_powerup() -> void:
@@ -134,6 +161,7 @@ func pattern_enemy_and_powerup() -> void:
 
 # Pattern F: Vertical obstacle corridor with clear navigation gate
 func pattern_vertical_obstacle_corridor() -> void:
+	var bonus = DifficultyManager.obstacle_density_bonus
 	var gate_y = rng.randf_range(200.0, 500.0)
 	# Upper hazard
 	var ast_up = _instantiate_node(asteroid_scene, Vector2(SPAWN_X, gate_y - 200.0))
@@ -141,28 +169,47 @@ func pattern_vertical_obstacle_corridor() -> void:
 	# Lower hazard
 	var ast_down = _instantiate_node(asteroid_scene, Vector2(SPAWN_X, gate_y + 200.0))
 	if ast_down is Asteroid: ast_down.size_type = "large"
+	# If bonus active, flank with extra small debris
+	if bonus >= 2:
+		var flank_ast = _instantiate_node(asteroid_scene, Vector2(SPAWN_X + 120.0, gate_y - 260.0))
+		if flank_ast is Asteroid: flank_ast.size_type = "small"
 	# Energy cell right through the safe center gate to guide the player!
 	_instantiate_node(energy_scene, Vector2(SPAWN_X, gate_y))
 
-# Pattern G: Enemy formation (Interceptor lead with Shooter support)
+# Pattern G: Enemy formation (Interceptor lead with Shooter support + extra drones)
 func pattern_enemy_formation() -> void:
+	var bonus = DifficultyManager.obstacle_density_bonus
 	var base_y = rng.randf_range(220.0, 500.0)
 	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, base_y))
 	_instantiate_node(enemy_kamikaze_scene, Vector2(SPAWN_X + 90.0, base_y - 120.0))
 	_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X + 110.0, base_y + 120.0))
+	
+	# Extra flankers at higher score
+	var extra_drones = mini(int(bonus / 2), 3)
+	for i in range(extra_drones):
+		var y_escort = clampf(base_y + ((i + 1) * 75.0 * (-1 if i % 2 == 0 else 1)), MIN_Y + 50.0, MAX_Y - 50.0)
+		_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 190.0 + (i * 60.0), y_escort))
 
-# Pattern H: Space mine cluster with safe corridor
+# Pattern H: Space mine cluster with safe corridor (scales count with score)
 func pattern_mine_cluster() -> void:
+	var bonus = DifficultyManager.obstacle_density_bonus
+	var count = 3 + mini(bonus, 4) # 3 to 7 mines
 	var safe_top = rng.randf() > 0.5
-	var start_y = 380.0 if safe_top else 140.0
-	for i in range(3):
-		_instantiate_node(mine_scene, Vector2(SPAWN_X + (i * 70.0), start_y + (i * 50.0)))
+	var start_y = 390.0 if safe_top else 130.0
+	for i in range(count):
+		_instantiate_node(mine_scene, Vector2(SPAWN_X + (i * 68.0), start_y + (i * 42.0)))
 
-# Pattern I: High/low alternating hazards
+# Pattern I: High/low alternating hazards (scales pairs with score)
 func pattern_alternating_hazards() -> void:
-	_instantiate_node(asteroid_scene, Vector2(SPAWN_X, MIN_Y + 40.0))
-	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 150.0, MAX_Y - 40.0))
-	_instantiate_node(asteroid_scene, Vector2(SPAWN_X + 300.0, MIN_Y + 60.0))
+	var bonus = DifficultyManager.obstacle_density_bonus
+	var pairs = 2 + mini(bonus, 3) # 2 to 5 obstacle pairs
+	for i in range(pairs):
+		var x_pos = SPAWN_X + (i * 135.0)
+		if i % 2 == 0:
+			_instantiate_node(asteroid_scene, Vector2(x_pos, MIN_Y + 45.0))
+		else:
+			var hazard_node = mine_scene if rng.randf() > 0.4 else asteroid_scene
+			_instantiate_node(hazard_node, Vector2(x_pos, MAX_Y - 45.0))
 
 # Pattern J: Reward corridor (Curving energy trail with bonus powerup)
 func pattern_reward_corridor() -> void:

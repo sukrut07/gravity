@@ -48,8 +48,11 @@ var powerup_timer: float = 0.0
 var bullet_scene: PackedScene = preload("res://scenes/Bullet.tscn")
 var explosion_scene: PackedScene = preload("res://scenes/Explosion.tscn")
 
+var current_bullet_color: Color = Color(0.2, 0.9, 1.0, 1.0)
+
 func _ready() -> void:
 	add_to_group("player")
+	apply_ship_configuration()
 	health = max_health
 	emit_signal("health_changed", health, max_health)
 	
@@ -57,6 +60,23 @@ func _ready() -> void:
 		if shield_sprite.texture == null:
 			shield_sprite.texture = ProceduralAssets.create_powerup_texture(Color(0.2, 0.8, 1.0, 0.45))
 		shield_sprite.visible = false
+
+func apply_ship_configuration() -> void:
+	var ship = SaveManager.get_current_ship_data()
+	if anim_sprite != null:
+		anim_sprite.sprite_frames = ShipData.create_sprite_frames_for_ship(ship)
+		anim_sprite.animation = "straight"
+		anim_sprite.play()
+	
+	if engine_particles != null:
+		engine_particles.color = ship.get("trail_color", Color(0.2, 0.8, 1.0, 0.6))
+		
+	current_bullet_color = ship.get("bullet_color", Color(0.2, 0.9, 1.0, 1.0))
+	
+	# Apply ship traits
+	max_vertical_speed = 680.0 * ship.get("speed_mod", 1.0)
+	turn_speed = 12.0 * ship.get("turn_mod", 1.0)
+	base_fire_rate = 0.14 * ship.get("fire_rate_mod", 1.0)
 
 func _physics_process(delta: float) -> void:
 	if GameManager.current_state != GameManager.GameState.PLAYING:
@@ -193,6 +213,7 @@ func spawn_bullet(spawn_pos: Vector2, angle_offset: float) -> void:
 		get_parent().add_child(bullet)
 		bullet.global_position = spawn_pos
 		bullet.rotation = rotation + angle_offset
+		bullet.modulate = current_bullet_color
 
 func execute_screen_burst() -> void:
 	emit_signal("special_activated")

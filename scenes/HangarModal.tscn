@@ -1,0 +1,276 @@
+[gd_scene format=3 uid="uid://de8koppfr2qaa"]
+
+[ext_resource type="Script" path="res://scripts/ui/hangar_modal.gd" id="1_hangar_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/Kenney Future.ttf" id="2_font_title"]
+[ext_resource type="FontFile" path="res://assets/fonts/Kenney Future Narrow.ttf" id="3_font_narrow"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_m.png" id="4_ship_tex"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_01.png" id="5_ex_01"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_02.png" id="6_ex_02"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_03.png" id="7_ex_03"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_04.png" id="8_ex_04"]
+[ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_05.png" id="9_ex_05"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hangar"]
+bg_color = Color(0.04, 0.07, 0.13, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.85, 1, 0.9)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0.6, 1, 0.25)
+shadow_size = 18
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ex"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_ex_01")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_ex_02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ex_03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_ex_04")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_ex_05")
+}],
+"loop": true,
+"name": &"default",
+"speed": 18.0
+}]
+
+[node name="HangarModal" type="CanvasLayer"]
+layer = 26
+script = ExtResource("1_hangar_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.78)
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -280.0
+offset_right = 340.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hangar")
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderBox" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="PanelContainer/MarginContainer/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 24
+text = "STARFIGHTER HANGAR"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="PanelContainer/MarginContainer/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 0.85)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 13
+text = "SELECT YOUR AIRFRAME & PROPULSION PROFILE"
+horizontal_alignment = 1
+
+[node name="ShipTabsContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="PreviewContainer" type="Control" parent="PanelContainer/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+
+[node name="PrevButton" type="Button" parent="PanelContainer/MarginContainer/VBox/PreviewContainer"]
+custom_minimum_size = Vector2(50, 48)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -24.0
+offset_right = 50.0
+offset_bottom = 24.0
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 20
+text = "◀"
+
+[node name="NextButton" type="Button" parent="PanelContainer/MarginContainer/VBox/PreviewContainer"]
+custom_minimum_size = Vector2(50, 48)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -24.0
+offset_bottom = 24.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 20
+text = "▶"
+
+[node name="ShipPreview" type="Node2D" parent="PanelContainer/MarginContainer/VBox/PreviewContainer"]
+position = Vector2(312, 80)
+scale = Vector2(1.5, 1.5)
+
+[node name="EngineExhaust" type="AnimatedSprite2D" parent="PanelContainer/MarginContainer/VBox/PreviewContainer/ShipPreview"]
+position = Vector2(-36, 0)
+rotation = 1.5707964
+sprite_frames = SubResource("SpriteFrames_ex")
+autoplay = "default"
+
+[node name="EngineParticles" type="CPUParticles2D" parent="PanelContainer/MarginContainer/VBox/PreviewContainer/ShipPreview"]
+position = Vector2(-30, 0)
+amount = 20
+lifetime = 0.35
+speed_scale = 1.3
+direction = Vector2(-1, 0)
+spread = 15.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 90.0
+initial_velocity_max = 160.0
+scale_amount_min = 2.5
+scale_amount_max = 5.0
+color = Color(0.2, 0.85, 1, 0.75)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="PanelContainer/MarginContainer/VBox/PreviewContainer/ShipPreview"]
+rotation = 1.5707964
+
+[node name="ShipInfo" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="NameLabel" type="Label" parent="PanelContainer/MarginContainer/VBox/ShipInfo"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 20
+text = "VIPER-01"
+horizontal_alignment = 1
+
+[node name="RoleLabel" type="Label" parent="PanelContainer/MarginContainer/VBox/ShipInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.85, 0.95, 0.8)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 13
+text = "FEDERATION STRIKER"
+horizontal_alignment = 1
+
+[node name="DescLabel" type="Label" parent="PanelContainer/MarginContainer/VBox/ShipInfo"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 0.9)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 13
+text = "Standard-issue federation fighter. Balanced agility and dual plasma spread."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="StatsGrid" type="GridContainer" parent="PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="SpeedTitle" type="Label" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 12
+text = "SPEED"
+
+[node name="SpeedBar" type="ProgressBar" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+value = 75.0
+show_percentage = false
+
+[node name="HandlingTitle" type="Label" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 12
+text = "HANDLING"
+
+[node name="HandlingBar" type="ProgressBar" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+value = 80.0
+show_percentage = false
+
+[node name="FirepowerTitle" type="Label" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 12
+text = "FIREPOWER"
+
+[node name="FirepowerBar" type="ProgressBar" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+value = 75.0
+show_percentage = false
+
+[node name="ShieldTitle" type="Label" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 12
+text = "SHIELD"
+
+[node name="ShieldBar" type="ProgressBar" parent="PanelContainer/MarginContainer/VBox/StatsGrid"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+value = 80.0
+show_percentage = false
+
+[node name="BottomRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="EquipButton" type="Button" parent="PanelContainer/MarginContainer/VBox/BottomRow"]
+custom_minimum_size = Vector2(220, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 16
+text = "DEPLOY THIS SHIP"
+
+[node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBox/BottomRow"]
+custom_minimum_size = Vector2(160, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 15
+text = "RETURN"

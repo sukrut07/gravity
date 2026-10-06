@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://mainmenu01scene"]
+[gd_scene load_steps=12 format=3 uid="uid://mainmenu01scene"]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_mm_script"]
 [ext_resource type="Texture2D" path="res://SpaceRage/BG.png" id="2_bg_tex"]
@@ -6,8 +6,8 @@
 [ext_resource type="FontFile" path="res://assets/fonts/Kenney Future Narrow.ttf" id="4_font_narrow"]
 [ext_resource type="Texture2D" path="res://SpaceRage/Player/player_b_m.png" id="5_p_tex"]
 [ext_resource type="Texture2D" path="res://SpaceRage/FX/exhaust_01.png" id="6_ex_tex"]
-[ext_resource type="Texture2D" path="res://assets/ui/panel_glass.png" id="7_panel_tex"]
-[ext_resource type="PackedScene" path="res://scenes/SettingsMenu.tscn" id="8_settings_scene"]
+[ext_resource type="PackedScene" path="res://scenes/SettingsMenu.tscn" id="7_settings_scene"]
+[ext_resource type="PackedScene" path="res://scenes/HangarModal.tscn" id="8_hangar_scene"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
 font = ExtResource("3_font_title")
@@ -17,6 +17,32 @@ outline_color = Color(0.04, 0.08, 0.16, 1)
 shadow_size = 8
 shadow_color = Color(0, 0, 0, 0.8)
 shadow_offset = Vector2(3, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.04, 0.07, 0.13, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.85, 1, 0.9)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0.6, 1, 0.25)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.06, 0.1, 0.18, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.45, 0.7, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -61,6 +87,20 @@ rotation = 1.57079632679
 scale = Vector2(1.2, 1.2)
 texture = ExtResource("6_ex_tex")
 
+[node name="EngineParticles" type="CPUParticles2D" parent="DecorativeShip"]
+position = Vector2(-36, 0)
+amount = 16
+lifetime = 0.35
+speed_scale = 1.2
+direction = Vector2(-1, 0)
+spread = 15.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 80.0
+initial_velocity_max = 140.0
+scale_amount_min = 2.0
+scale_amount_max = 4.0
+color = Color(0.2, 0.85, 1, 0.7)
+
 [node name="Content" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
@@ -69,12 +109,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -280.0
-offset_top = -240.0
+offset_top = -250.0
 offset_right = 280.0
-offset_bottom = 260.0
+offset_bottom = 270.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 8
 alignment = 1
 
 [node name="Title" type="Label" parent="Content"]
@@ -99,40 +139,56 @@ theme_override_font_sizes/font_size = 15
 text = "RECORD: 0 PTS • BEST DISTANCE: 0 m"
 horizontal_alignment = 1
 
+[node name="ActiveShipLabel" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 0.9)
+theme_override_fonts/font = ExtResource("4_font_narrow")
+theme_override_font_sizes/font_size = 14
+text = "ACTIVE CRAFT: VIPER-01 [STRIKER]"
+horizontal_alignment = 1
+
 [node name="Spacer" type="Control" parent="Content"]
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [node name="Buttons" type="VBoxContainer" parent="Content"]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="PlayButton" type="Button" parent="Content/Buttons"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
 theme_override_fonts/font = ExtResource("3_font_title")
 theme_override_font_sizes/font_size = 20
 text = "START FLIGHT"
 
+[node name="HangarButton" type="Button" parent="Content/Buttons"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("3_font_title")
+theme_override_font_sizes/font_size = 16
+text = "SHIP HANGAR"
+
 [node name="HowToPlayButton" type="Button" parent="Content/Buttons"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_font_title")
 theme_override_font_sizes/font_size = 16
 text = "HOW TO PLAY"
 
 [node name="SettingsButton" type="Button" parent="Content/Buttons"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_font_title")
 theme_override_font_sizes/font_size = 16
 text = "SETTINGS"
 
 [node name="QuitButton" type="Button" parent="Content/Buttons"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_font_title")
 theme_override_font_sizes/font_size = 16
@@ -145,7 +201,7 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -220.0
+offset_left = -260.0
 offset_top = -30.0
 offset_right = -20.0
 offset_bottom = -10.0
@@ -167,88 +223,129 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0, 0, 0, 0.78)
 
-[node name="PanelContainer" type="NinePatchRect" parent="HowToPlayModal"]
+[node name="PanelContainer" type="PanelContainer" parent="HowToPlayModal"]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -220.0
-offset_right = 260.0
-offset_bottom = 220.0
+offset_left = -330.0
+offset_top = -275.0
+offset_right = 330.0
+offset_bottom = 275.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("7_panel_tex")
-patch_margin_left = 16
-patch_margin_top = 16
-patch_margin_right = 16
-patch_margin_bottom = 16
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
 
 [node name="MarginContainer" type="MarginContainer" parent="HowToPlayModal/PanelContainer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 24
+theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_bottom = 22
 
 [node name="VBox" type="VBoxContainer" parent="HowToPlayModal/PanelContainer/MarginContainer"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
+[node name="HeaderBox" type="VBoxContainer" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
 layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.95, 1, 1)
 theme_override_fonts/font = ExtResource("3_font_title")
-theme_override_font_sizes/font_size = 22
-text = "FLIGHT MANUAL"
+theme_override_font_sizes/font_size = 23
+text = "FLIGHT MANUAL & TACTICAL PROTOCOL"
 horizontal_alignment = 1
 
-[node name="ControlsHeader" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
+[node name="Subtitle" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 0.85)
+theme_override_fonts/font = ExtResource("4_font_narrow")
+theme_override_font_sizes/font_size = 13
+text = "PILOT DIRECTIVES // READINESS LEVEL: COMBAT OPTIMAL"
+horizontal_alignment = 1
+
+[node name="ControlsCard" type="PanelContainer" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ControlsCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="CardVBox" type="VBoxContainer" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ControlsCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ControlsHeader" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ControlsCard/Margin/CardVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
 theme_override_fonts/font = ExtResource("3_font_title")
 theme_override_font_sizes/font_size = 14
-text = "CONTROLS"
+text = "FLIGHT CONTROLS & DEFENSE"
 
-[node name="ControlsBody" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
+[node name="ControlsBody" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ControlsCard/Margin/CardVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
 theme_override_fonts/font = ExtResource("4_font_narrow")
-theme_override_font_sizes/font_size = 14
-text = "• W / UP : VERTICAL THRUST (CLIMB)
-• S / DOWN : DIVE DOWN
-• SPACE : FIRE PULSE CANNON (HOLD TO RAPID FIRE)
-• SHIFT : ACTIVATE DEFLECTOR SHIELD
-• E : SCREEN BURST SMART BOMB (CLEAR ALL THREATS)"
+theme_override_font_sizes/font_size = 13
+text = "• [ W / UP ]   : VERTICAL THRUST (CLIMB SWIFTLY)
+• [ S / DOWN ] : DIVE / DESCENT (DESCEND TOWARD LOWER LANES)
+• [ A / D ]    : LANE MICRO-POSITIONING (FINE HORIZONTAL TUNING)
+• [ SPACE ]    : PULSE CANNON (HOLD FOR RAPID CONTINUOUS PLASMA FIRE)
+• [ SHIFT ]    : DEFLECTOR SHIELD (5-SECOND BARRIER, 12s RECHARGE)
+• [ E ]        : SCREEN BURST SMART BOMB (CLEAR ALL OBSTACLES & BULLETS)
+• [ ESC / P ]  : TACTICAL PAUSE & AUDIO CONFIGURATION"
 
-[node name="PowerupHeader" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
+[node name="ObjectivesCard" type="PanelContainer" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ObjectivesCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="CardVBox" type="VBoxContainer" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ObjectivesCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ObjectivesHeader" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ObjectivesCard/Margin/CardVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.1, 1)
 theme_override_fonts/font = ExtResource("3_font_title")
 theme_override_font_sizes/font_size = 14
-text = "OBJECTIVES & SCORING"
+text = "ENDLESS OBSTACLES & SCORING"
 
-[node name="PowerupBody" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
+[node name="ObjectivesBody" type="Label" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox/ObjectivesCard/Margin/CardVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
 theme_override_fonts/font = ExtResource("4_font_narrow")
-theme_override_font_sizes/font_size = 14
-text = "• SURVIVE & TRAVEL AS DEEP AS POSSIBLE
-• DESTROY ENEMIES QUICKLY TO BUILD X1 → X5 COMBOS
-• FLY CLOSE TO OBSTACLES FOR NEAR MISS BONUSES (+25)
-• COLLECT GREEN CELLS TO REPAIR HULL & CHARGE SPECIAL"
+theme_override_font_sizes/font_size = 13
+text = "★ ENDLESS HAZARDS : OBSTACLES & WAVES MULTIPLY ENDLESSLY AS SCORE RISES!
+★ COMBO SYSTEM     : DESTROY THREATS IN RAPID SUCCESSION FOR X1 → X5 MULTIPLIERS
+★ NEAR-MISS BONUS  : SKIM DANGEROUSLY CLOSE TO ASTEROIDS & MINES (+25 PTS)
+★ GREEN CELLS      : COLLECT TO RESTORE SHIP HULL & CHARGE SCREEN BURST
+★ SHIP HANGAR      : DEPLOY 5 UNIQUE STARFIGHTERS WITH CUSTOM ANIMATIONS & STATS"
 
 [node name="CloseButton" type="Button" parent="HowToPlayModal/PanelContainer/MarginContainer/VBox"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_vertical = 10
 theme_override_fonts/font = ExtResource("3_font_title")
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 16
 text = "CLOSE MANUAL"
 
-[node name="SettingsMenu" parent="." instance=ExtResource("8_settings_scene")]
+[node name="SettingsMenu" parent="." instance=ExtResource("7_settings_scene")]
+
+[node name="HangarModal" parent="." instance=ExtResource("8_hangar_scene")]

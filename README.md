@@ -48,7 +48,8 @@ The game is designed from the ground up for responsive, keyboard-first arcade pr
 - **Visuals**: Continuous animated engine exhaust, banking animation frames (`up_1`, `up_2`, `straight`, `down_1`, `down_2`), and velocity-driven ship tilt.
 - **Bounds**: Soft boundary clamps enforcing player flight in the left 20–30% lane of the screen.
 
-### 2. Fair Procedural Endless Spawner
+### 2. Fair Procedural Endless Spawner & Score Scaling
+- **Endless Score-Driven Density**: As your score increases, asteroid belts expand from 3 up to 8+ rocks, mine clusters widen, and ambient rogue obstacles drift into your lane with accelerating frequency!
 - **10 Deterministic Spawn Patterns**: From single scouts and enemy pairs to staggered asteroid corridors, mine clusters, and reward arcs.
 - **Fairness Guarantee**: Always leaves generous navigable lanes for the player; never overlaps lethal hazards across the entire screen.
 - **Mini-Events**:
@@ -58,8 +59,16 @@ The game is designed from the ground up for responsive, keyboard-first arcade pr
   - `HIGH VALUE ZONE`: Abundant energy pickups and powerup clusters.
   - `ELITE DREADNOUGHT`: Multi-phase capital ship encounter. Defeating it awards 5,000 pts, drops powerups, and seamlessly resumes the endless flight!
 
-### 3. Combat, Upgrades & Scoring
-- **Pulse Cannon**: High-speed, glowing vulcan projectiles with hit sparks.
+### 3. Starfighter Hangar (Ship Selection & Animations)
+Players can visit the **Ship Hangar** from the Main Menu to choose from 5 unique starfighters, each with dedicated banking animation frames, custom engine exhaust trail colors, bullet tints, and tactical profiles:
+- **VIPER-01 [STRIKER]**: Federation multi-role fighter with balanced handling, cyan engine trails, and dependable shield recovery.
+- **CRIMSON FURY [ASSAULT]**: High-output twin-turbine interceptor with flame-orange exhaust and a 12% faster rate of fire.
+- **EMERALD PHANTOM [SCOUT]**: Ultra-light aerodynamic scout with emerald trails, exceptional climb speed, and sharp banking agility.
+- **SOLAR PHOENIX [HEAVY]**: Titanium dread-fighter with golden solar exhaust and reinforced electromagnetic shields.
+- **VOID VALKYRIE [STEALTH]**: Experimental void-drive craft with neon violet exhaust and a narrow profile for precision near-miss flight.
+
+### 4. Combat, Upgrades & Scoring
+- **Pulse Cannon**: High-speed, glowing vulcan projectiles with hit sparks and custom ship tint.
 - **Powerups**:
   - **Rapid Fire**: Cooldown reduced to 0.07s.
   - **Triple Shot**: 3-way spread pattern.
@@ -73,10 +82,10 @@ The game is designed from the ground up for responsive, keyboard-first arcade pr
 - **Near-Miss System**: Flying within close proximity of lethal obstacles awards `+25` points with a floating text badge.
 - **Energy Cells**: Floating collectible pickups that award score and charge the Special Ability meter.
 
-### 4. Audio & Presentation
+### 5. Audio & Presentation
 - **Procedural Arcade SFX**: In-memory synthesized audio streams for laser blasts, hits, explosions, powerup chimes, shield hums, and near-miss whooshes.
-- **Typography & UI**: Styled with Kenney Future and Kenney Future Narrow fonts, glassmorphism panels, and arcade HUD readouts.
-- **Persistence**: High score, best distance, max combo, and audio preferences automatically saved to `user://gravity_save.cfg`.
+- **Dark Glassmorphic UI**: High-contrast, dark sci-fi glassmorphism styling across the Flight Manual, Hangar, Pause Menu, and Game Over screens.
+- **Persistence**: High score, best distance, max combo, selected starfighter, and audio preferences automatically saved to `user://gravity_save.cfg`.
 
 ---
 
@@ -86,6 +95,7 @@ The game is designed from the ground up for responsive, keyboard-first arcade pr
 gravity/
 ├── scenes/
 │   ├── MainMenu.tscn        # Startup title & arcade main menu
+│   ├── HangarModal.tscn     # Interactive starfighter selection & animation preview
 │   ├── Game.tscn            # Primary endless game scene
 │   ├── Player.tscn          # Player spacecraft & exhaust components
 │   ├── Bullet.tscn          # Player pulse cannon projectile

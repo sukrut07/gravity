@@ -7,10 +7,13 @@ extends Node
 const SAVE_PATH: String = "user://gravity_save.cfg"
 
 signal records_updated(best_score: int, best_distance: float, best_combo: int)
+signal ship_changed(ship_index: int)
 
 var best_score: int = 0
 var best_distance: float = 0.0
 var best_combo: int = 1
+
+var selected_ship_index: int = 0
 
 var sfx_volume: float = 0.8
 var music_volume: float = 0.8
@@ -30,6 +33,7 @@ func load_data() -> void:
 		best_score = config.get_value("records", "best_score", 0)
 		best_distance = config.get_value("records", "best_distance", 0.0)
 		best_combo = config.get_value("records", "best_combo", 1)
+		selected_ship_index = config.get_value("player", "selected_ship", 0)
 		sfx_volume = config.get_value("settings", "sfx_volume", 0.8)
 		music_volume = config.get_value("settings", "music_volume", 0.8)
 		screen_shake_enabled = config.get_value("settings", "screen_shake", true)
@@ -42,11 +46,21 @@ func save_data() -> void:
 	config.set_value("records", "best_score", best_score)
 	config.set_value("records", "best_distance", best_distance)
 	config.set_value("records", "best_combo", best_combo)
+	config.set_value("player", "selected_ship", selected_ship_index)
 	config.set_value("settings", "sfx_volume", sfx_volume)
 	config.set_value("settings", "music_volume", music_volume)
 	config.set_value("settings", "screen_shake", screen_shake_enabled)
 	config.set_value("settings", "fullscreen", fullscreen_enabled)
 	config.save(SAVE_PATH)
+
+func set_selected_ship(index: int) -> void:
+	if index >= 0 and index < ShipData.get_ship_count():
+		selected_ship_index = index
+		save_data()
+		emit_signal("ship_changed", selected_ship_index)
+
+func get_current_ship_data() -> Dictionary:
+	return ShipData.get_ship(selected_ship_index)
 
 func update_records(current_score: int, current_distance: float, current_combo: int) -> bool:
 	var record_broken: bool = false

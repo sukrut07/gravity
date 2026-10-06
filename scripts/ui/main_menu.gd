@@ -4,14 +4,20 @@ extends Control
 ## Polished arcade sci-fi startup and main menu for Gravity: Endless Flight.
 
 @onready var play_button: Button = $Content/Buttons/PlayButton
+@onready var hangar_button: Button = $Content/Buttons/HangarButton
 @onready var how_to_play_button: Button = $Content/Buttons/HowToPlayButton
 @onready var settings_button: Button = $Content/Buttons/SettingsButton
 @onready var quit_button: Button = $Content/Buttons/QuitButton
 
 @onready var records_label: Label = $Content/RecordsLabel
+@onready var active_ship_label: Label = $Content/ActiveShipLabel
 @onready var decorative_ship: Node2D = $DecorativeShip
+@onready var decorative_ship_sprite: Sprite2D = $DecorativeShip/ShipSprite
+@onready var decorative_exhaust_particles: CPUParticles2D = $DecorativeShip/EngineParticles
+
 @onready var how_to_play_modal: CanvasLayer = $HowToPlayModal
 @onready var settings_modal: CanvasLayer = $SettingsMenu
+@onready var hangar_modal: CanvasLayer = $HangarModal
 
 var ship_target_y: float = 360.0
 var time_passed: float = 0.0
@@ -21,6 +27,7 @@ func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	
 	play_button.pressed.connect(_on_play_pressed)
+	hangar_button.pressed.connect(_on_hangar_pressed)
 	how_to_play_button.pressed.connect(_on_how_to_play_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
@@ -29,7 +36,13 @@ func _ready() -> void:
 	how_to_play_modal.visible = false
 	
 	update_records_display()
+	update_ship_display()
+	
 	SaveManager.records_updated.connect(func(_s, _d, _c): update_records_display())
+	SaveManager.ship_changed.connect(func(_idx): update_ship_display())
+	
+	if hangar_modal != null and hangar_modal.has_signal("ship_equipped"):
+		hangar_modal.ship_equipped.connect(func(_idx): update_ship_display())
 
 func _process(delta: float) -> void:
 	time_passed += delta
@@ -37,6 +50,7 @@ func _process(delta: float) -> void:
 	if decorative_ship != null:
 		decorative_ship.position.y = 360.0 + sin(time_passed * 1.8) * 35.0
 		decorative_ship.position.x = 220.0 + sin(time_passed * 0.9) * 20.0
+		decorative_ship.rotation = sin(time_passed * 1.4) * deg_to_rad(6.0)
 
 func update_records_display() -> void:
 	if records_label != null:
@@ -44,6 +58,20 @@ func update_records_display() -> void:
 			records_label.text = "RECORD: %d PTS   •   BEST DISTANCE: %d m" % [SaveManager.best_score, int(SaveManager.best_distance)]
 		else:
 			records_label.text = "WELCOME PILOT — PREPARE FOR LAUNCH"
+
+func update_ship_display() -> void:
+	var ship = SaveManager.get_current_ship_data()
+	if active_ship_label != null:
+		active_ship_label.text = "ACTIVE CRAFT: %s [%s]" % [ship.get("name", "VIPER-01"), ship.get("role", "STRIKER")]
+		active_ship_label.add_theme_color_override("font_color", ship.get("accent_color", Color(0.2, 0.85, 1.0, 1.0)))
+		
+	if decorative_ship_sprite != null and ship.has("straight"):
+		var tex = load(ship["straight"])
+		if tex != null:
+			decorative_ship_sprite.texture = tex
+			
+	if decorative_exhaust_particles != null and ship.has("trail_color"):
+		decorative_exhaust_particles.color = ship["trail_color"]
 
 func _on_play_pressed() -> void:
 	AudioManager.play_sound("button_click")
@@ -55,6 +83,11 @@ func _on_play_pressed() -> void:
 	
 	GameManager.start_game()
 	get_tree().change_scene_to_file("res://scenes/Game.tscn")
+
+func _on_hangar_pressed() -> void:
+	AudioManager.play_sound("button_click")
+	if hangar_modal != null and hangar_modal.has_method("open"):
+		hangar_modal.open()
 
 func _on_how_to_play_pressed() -> void:
 	AudioManager.play_sound("button_click")
