@@ -4,6 +4,7 @@ extends CanvasLayer
 ## Polished Game Over screen displaying run statistics and high score records.
 
 @onready var title_label: Label = $PanelContainer/MarginContainer/VBox/TitleLabel
+@onready var difficulty_run_label: Label = $PanelContainer/MarginContainer/VBox/DifficultyRunLabel
 @onready var high_score_badge: Label = $PanelContainer/MarginContainer/VBox/HighScoreBadge
 @onready var final_score_label: Label = $PanelContainer/MarginContainer/VBox/StatsContainer/ScoreLabel
 @onready var final_distance_label: Label = $PanelContainer/MarginContainer/VBox/StatsContainer/DistanceLabel
@@ -21,6 +22,12 @@ func _ready() -> void:
 
 func _on_game_over_processed(stats: Dictionary) -> void:
 	visible = true
+	
+	if difficulty_run_label != null:
+		difficulty_run_label.text = "[%s RUN]" % DifficultyManager.get_difficulty_name()
+		var diff_idx = DifficultyManager.get_difficulty()
+		var colors = [Color(0.2, 0.95, 0.4), Color(0.2, 0.85, 1.0), Color(1.0, 0.65, 0.1), Color(1.0, 0.25, 0.25)]
+		difficulty_run_label.add_theme_color_override("font_color", colors[diff_idx])
 	final_score_label.text = "FINAL SCORE: %d" % stats.get("score", 0)
 	final_distance_label.text = "DISTANCE: %d m" % int(stats.get("distance", 0.0))
 	final_destroyed_label.text = "ENEMIES DESTROYED: %d" % stats.get("enemies_destroyed", 0)
