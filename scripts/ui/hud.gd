@@ -48,12 +48,9 @@ func _ready() -> void:
 	_on_tier_changed(DifficultyManager.current_tier)
 	_on_health_changed(5, 5)
 
-	# Platform-aware controls hint
+	# Desktop keyboard controls hint
 	if controls_hint != null:
-		if InputManager.should_show_touch_controls():
-			controls_hint.text = "DRAG JOYSTICK TO MOVE  •  HOLD FIRE TO SHOOT"
-		else:
-			controls_hint.text = "W / S — MOVE  •  SPACE — FIRE  •  SHIFT — SHIELD  •  E — SPECIAL"
+		controls_hint.text = "W / S — MOVE  •  SPACE — FIRE  •  SHIFT — SHIELD  •  E — SPECIAL"
 
 	# Run start difficulty announcement banner
 	var diff_name = DifficultyManager.get_difficulty_name()
@@ -135,25 +132,21 @@ func _on_shield_changed(is_active: bool, duration: float) -> void:
 		shield_label.text = "SHIELD: ACTIVE (%.1fs)" % duration
 		shield_label.modulate = Color(0.2, 0.8, 1.0, 1.0)
 	else:
-		if InputManager.should_show_touch_controls():
-			shield_label.text = "SHIELD: READY"
-		else:
-			shield_label.text = "SHIELD: [SHIFT]"
+		shield_label.text = "SHIELD: [SHIFT]"
 		shield_label.modulate = Color(0.7, 0.7, 0.8, 0.8)
 
 func _on_special_energy_updated(current: float, max_energy: float, is_ready: bool) -> void:
 	var pct = int((current / max_energy) * 100)
-	var is_touch = InputManager.should_show_touch_controls()
 	if is_ready:
-		special_label.text = "SCREEN BURST: READY!" if is_touch else "[E] SCREEN BURST: READY!"
+		special_label.text = "[E] SCREEN BURST: READY!"
 		special_label.modulate = Color(1.0, 0.9, 0.2, 1.0)
 	else:
-		var bars_total = 8 if is_touch else 10
+		var bars_total = 10
 		var filled = int((current / max_energy) * bars_total)
 		var bar_str = ""
 		for i in range(bars_total):
 			bar_str += "█" if i < filled else "░"
-		special_label.text = "BURST [%s] %d%%" % [bar_str, pct] if is_touch else "SPECIAL [%s] %d%%" % [bar_str, pct]
+		special_label.text = "SPECIAL [%s] %d%%" % [bar_str, pct]
 		special_label.modulate = Color(0.7, 0.7, 0.8, 0.85)
 
 func _on_milestone_reached(_dist: float, title: String) -> void:

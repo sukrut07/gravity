@@ -20,7 +20,7 @@ var music_volume: float = 0.8
 var screen_shake_enabled: bool = true
 var fullscreen_enabled: bool = false
 var difficulty_preference: int = 1
-var touch_controls_preference: String = "AUTO"
+var touch_controls_preference: String = "OFF"
 
 var is_new_high_score: bool = false
 var is_new_high_distance: bool = false
@@ -41,7 +41,7 @@ func load_data() -> void:
 		screen_shake_enabled = config.get_value("settings", "screen_shake", true)
 		fullscreen_enabled = config.get_value("settings", "fullscreen", false)
 		difficulty_preference = config.get_value("settings", "difficulty", 1)
-		touch_controls_preference = config.get_value("settings", "touch_controls", "AUTO")
+		touch_controls_preference = config.get_value("settings", "touch_controls", "OFF")
 		
 		# Propagate loaded settings to managers
 		DifficultyManager.set_difficulty(difficulty_preference)

@@ -14,7 +14,7 @@ var touch_move_vector: Vector2 = Vector2.ZERO
 var touch_shooting: bool = false
 
 # Touch control visibility mode: "AUTO", "ON", "OFF"
-var touch_mode_preference: String = "AUTO"
+var touch_mode_preference: String = "OFF"
 
 # Debug toggle: F6 forces touch controls in debug builds
 var debug_force_touch: bool = false
@@ -89,10 +89,8 @@ func should_show_touch_controls() -> bool:
 	elif touch_mode_preference == "OFF":
 		return false
 	
-	# AUTO mode: detect mobile OS or touch screen support
+	# AUTO mode: only enable on dedicated mobile operating systems
 	if OS.has_feature("mobile") or OS.has_feature("android") or OS.has_feature("ios"):
-		return true
-	if DisplayServer.is_touchscreen_available():
 		return true
 		
 	return false
