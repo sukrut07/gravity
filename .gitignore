@@ -37,3 +37,6 @@ SpaceRage.zip
 .vscode/
 *.swp
 *.swo
+
+# Legacy prototypes
+gesture_ai/
