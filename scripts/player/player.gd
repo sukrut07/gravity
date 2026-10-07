@@ -16,10 +16,15 @@ signal player_died()
 @export var horizontal_speed: float = 300.0
 @export var turn_speed: float = 12.0
 
+# Mobile Touch Controls (exposed in Inspector)
+@export var touch_smoothing: float = 24.0
+@export var touch_deadzone: float = 2.0
+@export var touch_autofire: bool = false
+var touch_target_pos: Vector2 = Vector2.ZERO
+
 # Combat Parameters
 @export var max_health: int = 5
 var health: int = 5
-
 @export var base_fire_rate: float = 0.14
 var shoot_cooldown_timer: float = 0.0
 
@@ -52,6 +57,7 @@ var current_bullet_color: Color = Color(0.2, 0.9, 1.0, 1.0)
 
 func _ready() -> void:
 	add_to_group("player")
+	touch_target_pos = global_position
 	apply_ship_configuration()
 	health = max_health
 	emit_signal("health_changed", health, max_health)
@@ -130,32 +136,65 @@ func _update_timers(delta: float) -> void:
 			reset_powerups()
 
 func _handle_movement(delta: float) -> void:
-	# Read unified input vector (keyboard or touch joystick)
-	var move_vec = InputManager.get_move_vector()
-	var move_x: float = move_vec.x
-	var move_y: float = move_vec.y
-		
 	var speed_mult = 1.25 if overdrive_active else 1.0
 	var cur_max_v = max_vertical_speed * speed_mult
+	var cur_max_h = horizontal_speed * speed_mult
+	var vp_size = get_viewport_rect().size
 	
-	# Responsive Jetpack Joyride vertical acceleration / deceleration
-	if move_y < -0.05: # Upward thrust
-		velocity.y = move_toward(velocity.y, move_y * cur_max_v, vertical_acceleration * delta)
-	elif move_y > 0.05: # Downward dive
-		velocity.y = move_toward(velocity.y, move_y * cur_max_v, vertical_acceleration * delta)
-	else: # Snappy centering / damping
-		velocity.y = move_toward(velocity.y, 0.0, vertical_deceleration * delta)
+	# 1. Desktop Keyboard Input Check
+	var kb_vec: Vector2 = InputManager.get_keyboard_vector()
+	var has_kb_input: bool = kb_vec.length_squared() > 0.001
+	
+	if has_kb_input:
+		# Keep touch target synchronized with ship while on keyboard
+		touch_target_pos = global_position
 		
-	# Micro horizontal adjustment
-	if abs(move_x) > 0.05:
-		velocity.x = move_toward(velocity.x, move_x * horizontal_speed, vertical_acceleration * delta)
+		# Vertical keyboard control
+		if kb_vec.y < -0.05:
+			velocity.y = move_toward(velocity.y, kb_vec.y * cur_max_v, vertical_acceleration * delta)
+		elif kb_vec.y > 0.05:
+			velocity.y = move_toward(velocity.y, kb_vec.y * cur_max_v, vertical_acceleration * delta)
+		else:
+			velocity.y = move_toward(velocity.y, 0.0, vertical_deceleration * delta)
+			
+		# Horizontal keyboard control
+		if abs(kb_vec.x) > 0.05:
+			velocity.x = move_toward(velocity.x, kb_vec.x * cur_max_h, vertical_acceleration * delta)
+		else:
+			velocity.x = move_toward(velocity.x, 0.0, vertical_deceleration * delta)
+			
+	elif InputManager.is_touch_moving:
+		# 2. Direct Mobile Touchscreen Finger Drag
+		var drag_delta: Vector2 = InputManager.consume_touch_drag_delta()
+		touch_target_pos += drag_delta
+		
+		# Enforce screen boundary clamping on touch target
+		touch_target_pos.x = clampf(touch_target_pos.x, 90.0, 380.0)
+		touch_target_pos.y = clampf(touch_target_pos.y, 45.0, vp_size.y - 45.0)
+		
+		var diff: Vector2 = touch_target_pos - global_position
+		if diff.length() > touch_deadzone:
+			var desired_vel: Vector2 = diff * touch_smoothing
+			var max_touch_h: float = cur_max_h * 2.0
+			var max_touch_v: float = cur_max_v * 2.0
+			desired_vel.x = clampf(desired_vel.x, -max_touch_h, max_touch_h)
+			desired_vel.y = clampf(desired_vel.y, -max_touch_v, max_touch_v)
+			
+			velocity.x = move_toward(velocity.x, desired_vel.x, vertical_acceleration * delta * 2.5)
+			velocity.y = move_toward(velocity.y, desired_vel.y, vertical_acceleration * delta * 2.5)
+		else:
+			velocity.x = move_toward(velocity.x, 0.0, vertical_deceleration * delta)
+			velocity.y = move_toward(velocity.y, 0.0, vertical_deceleration * delta)
+			
 	else:
+		# 3. No active input: Smooth deceleration to idle flight
+		touch_target_pos = global_position
 		velocity.x = move_toward(velocity.x, 0.0, vertical_deceleration * delta)
+		velocity.y = move_toward(velocity.y, 0.0, vertical_deceleration * delta)
 		
 	move_and_slide()
 
 	# Enforce Strict Soft Viewport Screen Boundaries (left 20-30% range)
-	var vp_size = get_viewport_rect().size
 	global_position.x = clampf(global_position.x, 90.0, 380.0)
 	global_position.y = clampf(global_position.y, 45.0, vp_size.y - 45.0)
 
@@ -181,8 +220,8 @@ func _handle_movement(delta: float) -> void:
 		engine_exhaust.speed_scale = 1.2 + clampf(abs(velocity.y) / max_vertical_speed, 0.0, 1.0) * 0.8
 
 func _handle_combat(delta: float) -> void:
-	# Space held or touch fire held = continuous pulse cannon firing
-	if InputManager.is_shooting():
+	# Space held, 2nd finger touch held, or auto-fire active while touching
+	if InputManager.is_shooting() or (touch_autofire and InputManager.is_touch_moving):
 		try_shoot()
 
 func try_shoot() -> void:

@@ -48,9 +48,22 @@ func _ready() -> void:
 	_on_tier_changed(DifficultyManager.current_tier)
 	_on_health_changed(5, 5)
 
-	# Desktop keyboard controls hint
-	if controls_hint != null:
-		controls_hint.text = "W / S — MOVE  •  SPACE — FIRE  •  SHIFT — SHIELD  •  E — SPECIAL"
+	# Adapt controls hint based on platform
+	_update_controls_hint()
+	if InputManager != null:
+		InputManager.touch_mode_detected.connect(_on_touch_mode_detected)
+		
+	# Allow direct touch tap on HUD gauges (seamless mobile accessibility without extra buttons)
+	if shield_label != null:
+		shield_label.mouse_filter = Control.MOUSE_FILTER_STOP
+		shield_label.gui_input.connect(_on_shield_label_gui_input)
+	if special_label != null:
+		special_label.mouse_filter = Control.MOUSE_FILTER_STOP
+		special_label.gui_input.connect(_on_special_label_gui_input)
+	var top_left = get_node_or_null("TopLeft")
+	if top_left != null:
+		top_left.mouse_filter = Control.MOUSE_FILTER_STOP
+		top_left.gui_input.connect(_on_top_left_gui_input)
 
 	# Run start difficulty announcement banner
 	var diff_name = DifficultyManager.get_difficulty_name()
@@ -132,13 +145,19 @@ func _on_shield_changed(is_active: bool, duration: float) -> void:
 		shield_label.text = "SHIELD: ACTIVE (%.1fs)" % duration
 		shield_label.modulate = Color(0.2, 0.8, 1.0, 1.0)
 	else:
-		shield_label.text = "SHIELD: [SHIFT]"
+		if InputManager != null and InputManager.is_touch_device_active:
+			shield_label.text = "SHIELD: READY (TAP)"
+		else:
+			shield_label.text = "SHIELD: [SHIFT]"
 		shield_label.modulate = Color(0.7, 0.7, 0.8, 0.8)
 
 func _on_special_energy_updated(current: float, max_energy: float, is_ready: bool) -> void:
 	var pct = int((current / max_energy) * 100)
 	if is_ready:
-		special_label.text = "[E] SCREEN BURST: READY!"
+		if InputManager != null and InputManager.is_touch_device_active:
+			special_label.text = "SCREEN BURST: READY! (TAP)"
+		else:
+			special_label.text = "[E] SCREEN BURST: READY!"
 		special_label.modulate = Color(1.0, 0.9, 0.2, 1.0)
 	else:
 		var bars_total = 10
@@ -148,6 +167,30 @@ func _on_special_energy_updated(current: float, max_energy: float, is_ready: boo
 			bar_str += "█" if i < filled else "░"
 		special_label.text = "SPECIAL [%s] %d%%" % [bar_str, pct]
 		special_label.modulate = Color(0.7, 0.7, 0.8, 0.85)
+
+func _update_controls_hint() -> void:
+	if controls_hint != null:
+		if InputManager != null and InputManager.is_touch_device_active:
+			controls_hint.text = "DRAG TO MOVE  •  HOLD 2ND FINGER TO FIRE  •  DOUBLE-TAP: SHIELD"
+		else:
+			controls_hint.text = "W / S — MOVE  •  SPACE — FIRE  •  SHIFT — SHIELD  •  E — SPECIAL"
+
+func _on_touch_mode_detected() -> void:
+	_update_controls_hint()
+	_on_shield_changed(false, 0.0)
+	_on_special_energy_updated(GameManager.special_energy, GameManager.MAX_SPECIAL_ENERGY, GameManager.is_special_ready())
+
+func _on_shield_label_gui_input(event: InputEvent) -> void:
+	if (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+		InputManager.trigger_shield()
+
+func _on_special_label_gui_input(event: InputEvent) -> void:
+	if (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+		InputManager.trigger_special()
+
+func _on_top_left_gui_input(event: InputEvent) -> void:
+	if (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+		InputManager.trigger_pause()
 
 func _on_milestone_reached(_dist: float, title: String) -> void:
 	show_announcement(title, Color(0.2, 0.9, 1.0), 3.0)
