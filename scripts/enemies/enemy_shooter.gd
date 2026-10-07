@@ -26,12 +26,15 @@ func _process(delta: float) -> void:
 	position.x -= current_speed * delta
 	shoot_timer += delta
 	
-	if shoot_timer >= (shoot_interval - 0.35) and not is_telegraphing:
+	var proj_mult = DifficultyManager.get_projectile_multiplier()
+	var effective_interval = shoot_interval / proj_mult
+	
+	if shoot_timer >= (effective_interval - 0.35) and not is_telegraphing:
 		is_telegraphing = true
 		if sprite != null:
 			sprite.modulate = Color(1.8, 0.4, 0.4, 1.0)
 			
-	if shoot_timer >= shoot_interval:
+	if shoot_timer >= effective_interval:
 		shoot_timer = 0.0
 		is_telegraphing = false
 		if sprite != null:

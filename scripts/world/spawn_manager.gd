@@ -34,9 +34,10 @@ func _process(delta: float) -> void:
 	if GameManager.current_state != GameManager.GameState.PLAYING:
 		return
 
-	# Handle Powerup Timer (regular drip every 18-28 seconds)
+	# Handle Powerup Timer (scaled by difficulty powerup_multiplier)
 	powerup_timer += delta
-	if powerup_timer >= 22.0:
+	var powerup_interval = 22.0 / DifficultyManager.get_powerup_multiplier()
+	if powerup_timer >= powerup_interval:
 		powerup_timer = 0.0
 		spawn_random_powerup()
 
@@ -50,7 +51,8 @@ func _process(delta: float) -> void:
 	var cur_score = ScoreManager.score
 	if cur_score >= 600:
 		ambient_hazard_timer += delta
-		var ambient_target = maxf(1.4, 5.0 / (1.0 + (float(cur_score) / 5500.0)))
+		var base_ambient = 5.0 / (1.0 + (float(cur_score) / 5500.0))
+		var ambient_target = maxf(1.0, base_ambient / DifficultyManager.get_hazard_multiplier())
 		if ambient_hazard_timer >= ambient_target:
 			ambient_hazard_timer = 0.0
 			spawn_ambient_hazard()
@@ -65,6 +67,12 @@ func _process(delta: float) -> void:
 	if spawn_timer >= current_interval:
 		spawn_timer = 0.0
 		spawn_next_pattern()
+
+func get_active_enemy_count() -> int:
+	return get_tree().get_nodes_in_group("enemies").size()
+
+func can_spawn_enemies(count: int = 1) -> bool:
+	return (get_active_enemy_count() + count) <= DifficultyManager.get_max_active_enemies()
 
 func spawn_ambient_hazard() -> void:
 	var y = rng.randf_range(MIN_Y + 30.0, MAX_Y - 30.0)
