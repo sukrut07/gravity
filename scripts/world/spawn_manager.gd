@@ -102,39 +102,107 @@ func spawn_next_pattern() -> void:
 			pattern_reward_corridor()
 			return
 
-	# Standard procedural patterns: pick from 10 fair variations without repeating
-	var pattern_index = rng.randi() % 10
+	# Standard procedural patterns: pick from 11 fair variations without repeating
+	var pattern_index = rng.randi() % 11
 	if pattern_index == last_pattern_index:
-		pattern_index = (pattern_index + 1) % 10
+		pattern_index = (pattern_index + 1) % 11
 	last_pattern_index = pattern_index
 
 	match pattern_index:
 		0: pattern_single_enemy()
 		1: pattern_enemy_pair()
-		2: pattern_asteroid_line()
-		3: pattern_asteroid_corridor()
-		4: pattern_enemy_and_powerup()
-		5: pattern_vertical_obstacle_corridor()
-		6: pattern_enemy_formation()
-		7: pattern_mine_cluster()
-		8: pattern_alternating_hazards()
-		9: pattern_reward_corridor()
+		2: pattern_enemy_attack_group()
+		3: pattern_asteroid_line()
+		4: pattern_asteroid_corridor()
+		5: pattern_enemy_and_powerup()
+		6: pattern_vertical_obstacle_corridor()
+		7: pattern_enemy_formation()
+		8: pattern_mine_cluster()
+		9: pattern_alternating_hazards()
+		10: pattern_reward_corridor()
 
 # ----------------- PROCEDURAL PATTERNS -----------------
 
 # Pattern A: Single Interceptor
 func pattern_single_enemy() -> void:
+	if not can_spawn_enemies(1):
+		return
 	var y = rng.randf_range(MIN_Y, MAX_Y)
 	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, y))
 
-# Pattern B: Enemy Pair
+# Pattern B: Enemy Pair (Scales to trio on HARD/EXTREME)
 func pattern_enemy_pair() -> void:
+	var diff = DifficultyManager.get_difficulty()
+	var count = 2
+	if diff >= DifficultyManager.Difficulty.HARD and can_spawn_enemies(3):
+		count = 3
+	elif not can_spawn_enemies(2):
+		return
+
 	var gap = rng.randf_range(160.0, 240.0)
 	var mid_y = rng.randf_range(MIN_Y + 100, MAX_Y - 100)
 	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, mid_y - gap * 0.5))
 	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 60.0, mid_y + gap * 0.5))
+	if count >= 3:
+		_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 120.0, mid_y))
 
-# Pattern C: Asteroid line (staggered with open bypass - scales count with score)
+# Pattern C: Dynamic Enemy Attack Group (Scaled directly to Difficulty and Wave size)
+func pattern_enemy_attack_group() -> void:
+	var diff = DifficultyManager.get_difficulty()
+	var base_y = rng.randf_range(MIN_Y + 100.0, MAX_Y - 100.0)
+	
+	match diff:
+		DifficultyManager.Difficulty.EASY:
+			# 1 to 2 attack units
+			if rng.randf() > 0.5 and can_spawn_enemies(2):
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, base_y - 60.0))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 50.0, base_y + 60.0))
+			elif can_spawn_enemies(1):
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, base_y))
+				
+		DifficultyManager.Difficulty.NORMAL:
+			# 2 to 4 attack units (e.g. Shooter + Interceptor, or 2 Interceptors + Kamikaze)
+			var roll = rng.randf()
+			if roll < 0.45 and can_spawn_enemies(2):
+				_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X, base_y))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 80.0, base_y + 80.0))
+			elif roll < 0.8 and can_spawn_enemies(3):
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, base_y - 70.0))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 60.0, base_y + 70.0))
+				_instantiate_node(enemy_kamikaze_scene, Vector2(SPAWN_X + 120.0, base_y))
+			elif can_spawn_enemies(2):
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, base_y - 50.0))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 50.0, base_y + 50.0))
+				
+		DifficultyManager.Difficulty.HARD:
+			# 3 to 6 attack units (Shooters + Escorts + Kamikazes)
+			if can_spawn_enemies(4):
+				_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X, base_y - 90.0))
+				_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X + 40.0, base_y + 90.0))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 90.0, base_y - 40.0))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 130.0, base_y + 40.0))
+			elif can_spawn_enemies(3):
+				_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X, base_y))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 70.0, base_y - 80.0))
+				_instantiate_node(enemy_kamikaze_scene, Vector2(SPAWN_X + 70.0, base_y + 80.0))
+				
+		DifficultyManager.Difficulty.EXTREME:
+			# 5 to 8 attack units (Coordinated squadron wave)
+			var target_count = mini(DifficultyManager.get_max_group_size(), 6)
+			if can_spawn_enemies(target_count):
+				_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X, base_y - 120.0))
+				_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X + 40.0, base_y + 120.0))
+				_instantiate_node(enemy_kamikaze_scene, Vector2(SPAWN_X + 80.0, base_y))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 120.0, base_y - 60.0))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 160.0, base_y + 60.0))
+				if target_count >= 6:
+					_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 200.0, base_y))
+			elif can_spawn_enemies(3):
+				_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X, base_y))
+				_instantiate_node(enemy_kamikaze_scene, Vector2(SPAWN_X + 80.0, base_y - 70.0))
+				_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 80.0, base_y + 70.0))
+
+# Pattern D: Asteroid line (staggered with open bypass - scales count with score)
 func pattern_asteroid_line() -> void:
 	var bonus = DifficultyManager.obstacle_density_bonus
 	var count = 3 + mini(bonus, 5) # 3 to 8 asteroids
@@ -146,7 +214,7 @@ func pattern_asteroid_line() -> void:
 		if ast is Asteroid:
 			ast.size_type = "small" if i % 2 == 0 else "medium"
 
-# Pattern D: Asteroid corridor (extended gauntlet scaling with score)
+# Pattern E: Asteroid corridor (extended gauntlet scaling with score)
 func pattern_asteroid_corridor() -> void:
 	var bonus = DifficultyManager.obstacle_density_bonus
 	var safe_center_y = rng.randf_range(270.0, 450.0)
@@ -161,13 +229,15 @@ func pattern_asteroid_corridor() -> void:
 		var ast2 = _instantiate_node(asteroid_scene, Vector2(SPAWN_X + x_off + 35.0, safe_center_y + (corridor_gap * 0.5 + 40.0)))
 		if ast2 is Asteroid: ast2.size_type = "medium" if i % 2 == 1 else "small"
 
-# Pattern E: Enemy + Powerup combo
+# Pattern F: Enemy + Powerup combo
 func pattern_enemy_and_powerup() -> void:
+	if not can_spawn_enemies(1):
+		return
 	var y = rng.randf_range(MIN_Y + 80, MAX_Y - 80)
 	_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X, y))
 	_instantiate_node(powerup_scene, Vector2(SPAWN_X + 180.0, y + (80.0 if y < 360 else -80.0)))
 
-# Pattern F: Vertical obstacle corridor with clear navigation gate
+# Pattern G: Vertical obstacle corridor with clear navigation gate
 func pattern_vertical_obstacle_corridor() -> void:
 	var bonus = DifficultyManager.obstacle_density_bonus
 	var gate_y = rng.randf_range(200.0, 500.0)
@@ -184,19 +254,22 @@ func pattern_vertical_obstacle_corridor() -> void:
 	# Energy cell right through the safe center gate to guide the player!
 	_instantiate_node(energy_scene, Vector2(SPAWN_X, gate_y))
 
-# Pattern G: Enemy formation (Interceptor lead with Shooter support + extra drones)
+# Pattern H: Enemy formation (Interceptor lead with Shooter support + extra drones scaled to difficulty)
 func pattern_enemy_formation() -> void:
-	var bonus = DifficultyManager.obstacle_density_bonus
+	if not can_spawn_enemies(3):
+		return
 	var base_y = rng.randf_range(220.0, 500.0)
 	_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X, base_y))
 	_instantiate_node(enemy_kamikaze_scene, Vector2(SPAWN_X + 90.0, base_y - 120.0))
 	_instantiate_node(enemy_shooter_scene, Vector2(SPAWN_X + 110.0, base_y + 120.0))
 	
-	# Extra flankers at higher score
-	var extra_drones = mini(int(bonus / 2), 3)
-	for i in range(extra_drones):
-		var y_escort = clampf(base_y + ((i + 1) * 75.0 * (-1 if i % 2 == 0 else 1)), MIN_Y + 50.0, MAX_Y - 50.0)
-		_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 190.0 + (i * 60.0), y_escort))
+	# Extra flankers scaled by difficulty group size
+	var diff_max = DifficultyManager.get_max_group_size()
+	var extra_drones = mini(diff_max - 3, 4)
+	if extra_drones > 0 and can_spawn_enemies(extra_drones):
+		for i in range(extra_drones):
+			var y_escort = clampf(base_y + ((i + 1) * 75.0 * (-1 if i % 2 == 0 else 1)), MIN_Y + 50.0, MAX_Y - 50.0)
+			_instantiate_node(enemy_basic_scene, Vector2(SPAWN_X + 190.0 + (i * 60.0), y_escort))
 
 # Pattern H: Space mine cluster with safe corridor (scales count with score)
 func pattern_mine_cluster() -> void:
