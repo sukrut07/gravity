@@ -1,0 +1,250 @@
+[gd_scene load_steps=7 format=3 uid="uid://touchctrl01scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="1_tc_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/Kenney Future.ttf" id="2_font_title"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_joy_base"]
+bg_color = Color(0.04, 0.08, 0.16, 0.45)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.85, 1, 0.6)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
+shadow_color = Color(0, 0.6, 1, 0.2)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_joy_knob"]
+bg_color = Color(0.2, 0.85, 1, 0.75)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.98, 1, 0.9)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+shadow_color = Color(0.2, 0.85, 1, 0.4)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_action"]
+bg_color = Color(0.06, 0.12, 0.22, 0.65)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.85, 1, 0.8)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+shadow_color = Color(0, 0.6, 1, 0.25)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pause"]
+bg_color = Color(0.05, 0.08, 0.15, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7, 0.8, 0.9, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="TouchControls" type="CanvasLayer"]
+process_mode = 3
+layer = 12
+visible = false
+script = ExtResource("1_tc_script")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="JoystickContainer" type="MarginContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -180.0
+offset_right = 180.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="JoystickBase" type="Panel" parent="Control/JoystickContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_joy_base")
+
+[node name="Knob" type="Panel" parent="Control/JoystickContainer/JoystickBase"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -25.0
+offset_top = -25.0
+offset_right = 25.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_joy_knob")
+
+[node name="ActionButtons" type="Control" parent="Control"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -220.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="FireButton" type="Panel" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -106.0
+offset_top = -106.0
+offset_right = -34.0
+offset_bottom = -34.0
+grow_horizontal = 0
+grow_vertical = 0
+pivot_offset = Vector2(36, 36)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_btn_action")
+
+[node name="Label" type="Label" parent="Control/ActionButtons/FireButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 14
+text = "FIRE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ShieldButton" type="Panel" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -178.0
+offset_top = -78.0
+offset_right = -122.0
+offset_bottom = -22.0
+grow_horizontal = 0
+grow_vertical = 0
+pivot_offset = Vector2(28, 28)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_btn_action")
+
+[node name="Label" type="Label" parent="Control/ActionButtons/ShieldButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 10
+text = "SHIELD"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpecialButton" type="Panel" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -78.0
+offset_top = -178.0
+offset_right = -22.0
+offset_bottom = -122.0
+grow_horizontal = 0
+grow_vertical = 0
+pivot_offset = Vector2(28, 28)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_btn_action")
+
+[node name="Label" type="Label" parent="Control/ActionButtons/SpecialButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 10
+text = "BURST"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopRightMargin" type="MarginContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -70.0
+offset_bottom = 60.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+
+[node name="PauseButton" type="Panel" parent="Control/TopRightMargin"]
+custom_minimum_size = Vector2(40, 36)
+layout_mode = 2
+pivot_offset = Vector2(20, 18)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_btn_pause")
+
+[node name="Label" type="Label" parent="Control/TopRightMargin/PauseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.8, 0.85, 0.95, 0.9)
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 14
+text = "ll"
+horizontal_alignment = 1
+vertical_alignment = 1
