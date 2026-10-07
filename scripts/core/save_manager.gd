@@ -19,6 +19,8 @@ var sfx_volume: float = 0.8
 var music_volume: float = 0.8
 var screen_shake_enabled: bool = true
 var fullscreen_enabled: bool = false
+var difficulty_preference: int = 1
+var touch_controls_preference: String = "AUTO"
 
 var is_new_high_score: bool = false
 var is_new_high_distance: bool = false
@@ -38,6 +40,13 @@ func load_data() -> void:
 		music_volume = config.get_value("settings", "music_volume", 0.8)
 		screen_shake_enabled = config.get_value("settings", "screen_shake", true)
 		fullscreen_enabled = config.get_value("settings", "fullscreen", false)
+		difficulty_preference = config.get_value("settings", "difficulty", 1)
+		touch_controls_preference = config.get_value("settings", "touch_controls", "AUTO")
+		
+		# Propagate loaded settings to managers
+		DifficultyManager.set_difficulty(difficulty_preference)
+		if InputManager != null:
+			InputManager.touch_mode_preference = touch_controls_preference
 	else:
 		save_data()
 
@@ -51,7 +60,19 @@ func save_data() -> void:
 	config.set_value("settings", "music_volume", music_volume)
 	config.set_value("settings", "screen_shake", screen_shake_enabled)
 	config.set_value("settings", "fullscreen", fullscreen_enabled)
+	config.set_value("settings", "difficulty", difficulty_preference)
+	config.set_value("settings", "touch_controls", touch_controls_preference)
 	config.save(SAVE_PATH)
+
+func set_difficulty_preference(diff_val: int) -> void:
+	difficulty_preference = clampi(diff_val, 0, 3)
+	save_data()
+
+func set_touch_controls_preference(mode: String) -> void:
+	touch_controls_preference = mode
+	if InputManager != null:
+		InputManager.touch_mode_preference = mode
+	save_data()
 
 func set_selected_ship(index: int) -> void:
 	if index >= 0 and index < ShipData.get_ship_count():
