@@ -1,0 +1,192 @@
+[gd_scene load_steps=7 format=3 uid="uid://diffpanel01scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/difficulty_panel.gd" id="1_dp_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/Kenney Future.ttf" id="2_font_title"]
+[ext_resource type="FontFile" path="res://assets/fonts/Kenney Future Narrow.ttf" id="3_font_narrow"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/enemy_1_r_m.png" id="4_enemy_tex"]
+[ext_resource type="Texture2D" path="res://SpaceRage/Enemies/enemy_2_r_m.png" id="5_enemy2_tex"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_diffpanel"]
+bg_color = Color(0.04, 0.08, 0.16, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.6, 0.85, 0.7)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0.4, 0.8, 0.2)
+shadow_size = 10
+
+[node name="DifficultyPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(340, 155)
+theme_override_styles/panel = SubResource("StyleBoxFlat_diffpanel")
+script = ExtResource("1_dp_script")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderBox" type="HBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.9)
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 13
+text = "DIFFICULTY:"
+
+[node name="DifficultyLabel" type="Label" parent="MarginContainer/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_title")
+theme_override_font_sizes/font_size = 14
+text = "NORMAL"
+
+[node name="SliderContainer" type="VBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HSlider" type="HSlider" parent="MarginContainer/VBox/SliderContainer"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+max_value = 3.0
+step = 1.0
+value = 1.0
+
+[node name="TickLabels" type="HBoxContainer" parent="MarginContainer/VBox/SliderContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="EasyLabel" type="Label" parent="MarginContainer/VBox/SliderContainer/TickLabels"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 0.8)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 10
+text = "EASY"
+
+[node name="NormalLabel" type="Label" parent="MarginContainer/VBox/SliderContainer/TickLabels"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 0.8)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 10
+text = "NORMAL"
+horizontal_alignment = 1
+
+[node name="HardLabel" type="Label" parent="MarginContainer/VBox/SliderContainer/TickLabels"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.65, 0.1, 0.8)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 10
+text = "HARD"
+horizontal_alignment = 1
+
+[node name="ExtremeLabel" type="Label" parent="MarginContainer/VBox/SliderContainer/TickLabels"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.25, 0.25, 0.8)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 10
+text = "EXTREME"
+horizontal_alignment = 2
+
+[node name="DescriptionLabel" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 0.85)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 12
+text = "Balanced arcade challenge."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="StatsContainer" type="HBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="StatsLabel" type="Label" parent="MarginContainer/VBox/StatsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 0.9, 0.75)
+theme_override_fonts/font = ExtResource("3_font_narrow")
+theme_override_font_sizes/font_size = 11
+text = "ENEMIES: ██░░░   SPEED: ███░░   HAZARDS: ██░░░   SPAWN: ███░░"
+horizontal_alignment = 1
+
+[node name="PreviewContainer" type="HBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="ShipsBox" type="HBoxContainer" parent="MarginContainer/VBox/PreviewContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Ship1" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("4_enemy_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Ship2" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("5_enemy2_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Ship3" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("4_enemy_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Ship4" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("5_enemy2_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Ship5" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("4_enemy_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Ship6" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("5_enemy2_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Ship7" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("4_enemy_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Ship8" type="TextureRect" parent="MarginContainer/VBox/PreviewContainer/ShipsBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("5_enemy2_tex")
+expand_mode = 1
+stretch_mode = 5
