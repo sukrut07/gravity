@@ -39,6 +39,12 @@ func _ready() -> void:
 	
 	_update_ui_state(DifficultyManager.get_difficulty())
 
+func sync_from_manager() -> void:
+	var diff_idx = DifficultyManager.get_difficulty()
+	if slider != null and not is_equal_approx(slider.value, float(diff_idx)):
+		slider.value = float(diff_idx)
+	_update_ui_state(diff_idx)
+
 func _on_slider_value_changed(val: float) -> void:
 	var diff_idx = clampi(int(round(val)), 0, 3)
 	DifficultyManager.set_difficulty(diff_idx)

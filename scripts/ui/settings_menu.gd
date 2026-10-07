@@ -8,6 +8,7 @@ extends CanvasLayer
 @onready var shake_check: CheckBox = $PanelContainer/MarginContainer/VBox/ShakeCheck
 @onready var fullscreen_check: CheckBox = $PanelContainer/MarginContainer/VBox/FullscreenCheck
 @onready var close_button: Button = $PanelContainer/MarginContainer/VBox/CloseButton
+@onready var difficulty_panel: Control = get_node_or_null("PanelContainer/MarginContainer/VBox/DifficultyPanel")
 
 signal closed()
 
@@ -31,6 +32,8 @@ func open() -> void:
 	sfx_slider.value = SaveManager.sfx_volume
 	music_slider.value = SaveManager.music_volume
 	shake_check.button_pressed = SaveManager.screen_shake_enabled
+	if difficulty_panel != null and difficulty_panel.has_method("sync_from_manager"):
+		difficulty_panel.sync_from_manager()
 
 func close() -> void:
 	visible = false
