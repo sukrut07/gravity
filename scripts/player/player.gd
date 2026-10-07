@@ -60,6 +60,22 @@ func _ready() -> void:
 		if shield_sprite.texture == null:
 			shield_sprite.texture = ProceduralAssets.create_powerup_texture(Color(0.2, 0.8, 1.0, 0.45))
 		shield_sprite.visible = false
+		
+	InputManager.shield_pressed.connect(_on_input_shield_pressed)
+	InputManager.special_pressed.connect(_on_input_special_pressed)
+
+func _on_input_shield_pressed() -> void:
+	if GameManager.current_state != GameManager.GameState.PLAYING:
+		return
+	if not is_shield_active and shield_cooldown_timer <= 0.0:
+		activate_shield(5.0)
+		shield_cooldown_timer = SHIELD_COOLDOWN_MAX
+
+func _on_input_special_pressed() -> void:
+	if GameManager.current_state != GameManager.GameState.PLAYING:
+		return
+	if GameManager.consume_special():
+		execute_screen_burst()
 
 func apply_ship_configuration() -> void:
 	var ship = SaveManager.get_current_ship_data()
@@ -114,19 +130,10 @@ func _update_timers(delta: float) -> void:
 			reset_powerups()
 
 func _handle_movement(delta: float) -> void:
-	# Read vertical inputs
-	var move_y: float = 0.0
-	if Input.is_action_pressed("move_up"):
-		move_y -= 1.0
-	if Input.is_action_pressed("move_down"):
-		move_y += 1.0
-		
-	# Read micro-horizontal inputs
-	var move_x: float = 0.0
-	if Input.is_action_pressed("move_left"):
-		move_x -= 1.0
-	if Input.is_action_pressed("move_right"):
-		move_x += 1.0
+	# Read unified input vector (keyboard or touch joystick)
+	var move_vec = InputManager.get_move_vector()
+	var move_x: float = move_vec.x
+	var move_y: float = move_vec.y
 		
 	var speed_mult = 1.25 if overdrive_active else 1.0
 	var cur_max_v = max_vertical_speed * speed_mult
@@ -174,20 +181,9 @@ func _handle_movement(delta: float) -> void:
 		engine_exhaust.speed_scale = 1.2 + clampf(abs(velocity.y) / max_vertical_speed, 0.0, 1.0) * 0.8
 
 func _handle_combat(delta: float) -> void:
-	# Space held = continuous pulse cannon firing
-	if Input.is_action_pressed("shoot"):
+	# Space held or touch fire held = continuous pulse cannon firing
+	if InputManager.is_shooting():
 		try_shoot()
-		
-	# Shift = manual shield activation (if off cooldown and not currently shielded)
-	if Input.is_action_just_pressed("shield"):
-		if not is_shield_active and shield_cooldown_timer <= 0.0:
-			activate_shield(5.0)
-			shield_cooldown_timer = SHIELD_COOLDOWN_MAX
-			
-	# E = Special Screen Burst Ability
-	if Input.is_action_just_pressed("special"):
-		if GameManager.consume_special():
-			execute_screen_burst()
 
 func try_shoot() -> void:
 	if shoot_cooldown_timer > 0.0:

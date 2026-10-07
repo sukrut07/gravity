@@ -23,6 +23,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 SaveManager="*res://scripts/core/save_manager.gd"
 DifficultyManager="*res://scripts/core/difficulty_manager.gd"
 ScoreManager="*res://scripts/core/score_manager.gd"
+InputManager="*res://scripts/input/input_manager.gd"
 GameManager="*res://scripts/core/game_manager.gd"
 AudioManager="*res://scripts/effects/audio_manager.gd"
 

@@ -18,6 +18,12 @@ func _ready() -> void:
 	restart_button.pressed.connect(_on_restart_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	menu_button.pressed.connect(_on_menu_pressed)
+	
+	InputManager.pause_pressed.connect(_on_pause_action_triggered)
+
+func _on_pause_action_triggered() -> void:
+	if GameManager.current_state == GameManager.GameState.PLAYING or GameManager.current_state == GameManager.GameState.PAUSED:
+		GameManager.toggle_pause()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
